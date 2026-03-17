@@ -5,23 +5,51 @@ import { X } from 'lucide-react';
 const AddTransactionModal = ({ type, isOpen, onClose }) => {
   const { jars, addIncome, addExpense } = useFinance();
   const [amount, setAmount] = useState('');
+  const [debt, setDebt] = useState('');
   const [note, setNote] = useState('');
   const [jarId, setJarId] = useState(jars[0]?.id || 'nec');
 
   if (!isOpen) return null;
 
+  const formatNumber = (val) => {
+    if (!val) return '';
+    return val.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const handleAmountChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    setAmount(rawValue);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const numAmount = parseFloat(amount);
-    if (!numAmount || numAmount <= 0) return alert('Vui lòng nhập số tiền hợp lệ');
+    // Làm sạch chuỗi: chỉ giữ lại các chữ số trước khi chuyển thành số
+    const cleanAmount = amount.toString().replace(/\D/g, '');
+    const cleanDebt = debt.toString().replace(/\D/g, '');
+    
+    const numAmount = parseFloat(cleanAmount) || 0;
+    const numDebt = parseFloat(cleanDebt) || 0;
+    
+    if (type === 'income') {
+      if (numAmount <= 0 && numDebt <= 0) {
+        return alert('Vui lòng nhập Tổng thu nhập hoặc Số tiền nợ cần trừ');
+      }
+    } else {
+      if (numAmount <= 0) return alert('Vui lòng nhập số tiền chi tiêu hợp lệ');
+    }
+
+    if (numDebt > numAmount && numAmount > 0) {
+      if (!window.confirm('Số tiền nợ lớn hơn thu nhập này, bạn có chắc chắn muốn khấu trừ âm vào các hũ không?')) return;
+    }
 
     if (type === 'income') {
-      addIncome(numAmount, note);
+      addIncome(numAmount, numDebt, note);
     } else {
       addExpense(numAmount, jarId, note, 'General');
     }
     
     setAmount('');
+    setDebt('');
     setNote('');
     onClose();
   };
@@ -36,15 +64,35 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Số tiền (VNĐ)</label>
+            <label>{type === 'income' ? 'Tổng Thu nhập nhận được (VNĐ)' : 'Số tiền (VNĐ)'}</label>
             <input 
-              type="number" 
-              value={amount} 
-              onChange={(e) => setAmount(e.target.value)} 
-              placeholder="VD: 1000000"
+              type="text" 
+              value={formatNumber(amount)} 
+              onChange={handleAmountChange} 
+              placeholder={type === 'income' ? "VD: 10.000.000" : "VD: 500.000"}
               autoFocus
             />
           </div>
+
+          {type === 'income' && (
+            <div className="form-group">
+              <label>Số tiền trích ra trả nợ (Điện thoại, Gym...) - Nếu có</label>
+              <input 
+                type="text" 
+                value={formatNumber(debt)} 
+                onChange={(e) => setDebt(e.target.value.replace(/\D/g, ''))} 
+                placeholder="VD: 2.000.000"
+                style={{ borderColor: debt > 0 ? 'var(--accent-warning)' : '' }}
+              />
+              {debt > 0 && (
+                <p style={{ fontSize: '0.8rem', color: 'var(--accent-warning)', marginTop: '0.4rem' }}>
+                  {amount > 0 
+                    ? `Hệ thống sẽ trừ khoản nợ này ra trước, sau đó mới chia số còn lại vào 6 hũ.` 
+                    : `Bạn đang trừ nợ độc lập. Số tiền này sẽ được khấu trừ từ tất cả các hũ theo tỷ lệ % tương ứng.`}
+                </p>
+              )}
+            </div>
+          )}
 
           {type === 'expense' && (
             <div className="form-group">
@@ -111,14 +159,20 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
         input, select {
           width: 100%;
           padding: 0.8rem;
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--bg-secondary);
           border: 1px solid var(--glass-border);
           border-radius: var(--radius-sm);
           color: #fff;
           font-size: 1rem;
+          appearance: none;
         }
 
-        input:focus { border-color: var(--accent-cyan); outline: none; }
+        option {
+          background: var(--bg-secondary);
+          color: #fff;
+        }
+
+        input:focus, select:focus { border-color: var(--accent-cyan); outline: none; }
 
         .modal-actions { margin-top: 2rem; }
 

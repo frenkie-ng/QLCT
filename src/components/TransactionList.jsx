@@ -29,7 +29,11 @@ const TransactionList = () => {
               <div className="t-info">
                 <span className="t-note">{t.note}</span>
                 <span className="t-jar" style={{ color: getJarColor(t.jarId) }}>
-                  {t.type === 'in' ? 'Phân bổ 6 hũ' : getJarName(t.jarId)}
+                  {t.type === 'in' ? (
+                    <>
+                      Phân bổ 6 hũ {t.debtAmount > 0 && <span style={{ color: 'var(--accent-warning)', fontSize: '0.75rem', marginLeft: '0.4rem' }}>(-{t.debtAmount.toLocaleString()}đ nợ)</span>}
+                    </>
+                  ) : getJarName(t.jarId)}
                 </span>
               </div>
               <div className="t-amount-group">

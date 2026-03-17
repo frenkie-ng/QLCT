@@ -1,17 +1,36 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Wallet, TrendingUp, PieChart, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Wallet, TrendingUp, PieChart, ArrowUpRight, ArrowDownLeft, Target, Calendar } from 'lucide-react';
 import AddTransactionModal from '../components/AddTransactionModal';
+import SetGoalModal from '../components/SetGoalModal';
 import TransactionList from '../components/TransactionList';
 
 const Dashboard = () => {
-  const { jars, getBalanceSummary } = useFinance();
+  const { jars, transactions, getBalanceSummary, updateJarGoal } = useFinance();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('income');
+  const [goalModalJar, setGoalModalJar] = useState(null);
 
   const openModal = (type) => {
     setModalType(type);
     setIsModalOpen(true);
+  };
+
+  const calculateETA = (jar) => {
+    if (!jar.targetAmount || jar.targetAmount <= jar.balance) return null;
+
+    // Tính thu nhập trung bình 3 tháng gần nhất (mô phỏng dựa trên data hiện có)
+    const incomeTransactions = transactions.filter(t => t.type === 'in');
+    if (incomeTransactions.length === 0) return 'Chưa đủ dữ liệu thu nhập';
+
+    const totalIncome = incomeTransactions.reduce((sum, t) => sum + (t.remainingAmount || t.amount), 0);
+    const avgMonthlyIncome = totalIncome / Math.max(1, incomeTransactions.length); // Tạm tính theo số lần nạp
+    const monthlyJarContribution = (avgMonthlyIncome * jar.percentage) / 100;
+
+    if (monthlyJarContribution <= 0) return 'Tốc độ tích lũy quá thấp';
+
+    const monthsRemaining = (jar.targetAmount - jar.balance) / monthlyJarContribution;
+    return Math.ceil(monthsRemaining);
   };
 
   return (
@@ -37,15 +56,48 @@ const Dashboard = () => {
           <div key={jar.id} className="jar-card glass-card" style={{ '--jar-color': jar.color }}>
             <div className="jar-header">
               <span className="jar-badge" style={{ backgroundColor: jar.color }}>{jar.percentage}%</span>
-              <PieChart size={20} className="text-secondary" />
+              <button 
+                className="goal-trigger-btn" 
+                onClick={(e) => { e.stopPropagation(); setGoalModalJar(jar); }}
+                title="Thiết lập mục tiêu"
+              >
+                <Target size={18} color={jar.targetAmount > 0 ? jar.color : 'var(--text-tertiary)'} />
+              </button>
             </div>
             <h3 className="jar-name">{jar.name}</h3>
             <div className="jar-balance">
               <span className="amount">{jar.balance.toLocaleString()}</span>
               <span className="currency">VNĐ</span>
             </div>
-            <div className="jar-progress-bg">
-              <div className="jar-progress-fill" style={{ width: '100%', backgroundColor: jar.color }}></div>
+
+            {jar.targetAmount > 0 ? (
+              <div className="goal-status">
+                <div className="goal-info">
+                  <span className="goal-label">Mục tiêu: {jar.targetAmount.toLocaleString()}đ</span>
+                  <span className="goal-percent">{Math.min(100, Math.round((jar.balance / jar.targetAmount) * 100))}%</span>
+                </div>
+                <div className="jar-progress-bg">
+                  <div 
+                    className="jar-progress-fill" 
+                    style={{ 
+                      width: `${Math.min(100, (jar.balance / jar.targetAmount) * 100)}%`, 
+                      backgroundColor: jar.color 
+                    }}
+                  ></div>
+                </div>
+                <div className="eta-info">
+                  <Calendar size={12} />
+                  <span>Dự kiến: {calculateETA(jar)} tháng nữa</span>
+                </div>
+              </div>
+            ) : (
+              <div className="jar-progress-bg">
+                <div className="jar-progress-fill placeholder" style={{ width: '100%', backgroundColor: jar.color, opacity: 0.2 }}></div>
+              </div>
+            )}
+            
+            <div className="jar-description-overlay">
+              <p>{jar.description}</p>
             </div>
           </div>
         ))}
@@ -66,6 +118,13 @@ const Dashboard = () => {
         isOpen={isModalOpen} 
         type={modalType} 
         onClose={() => setIsModalOpen(false)} 
+      />
+
+      <SetGoalModal 
+        jar={goalModalJar}
+        isOpen={!!goalModalJar}
+        onClose={() => setGoalModalJar(null)}
+        onSave={updateJarGoal}
       />
 
       <TransactionList />
@@ -108,11 +167,42 @@ const Dashboard = () => {
         .jar-card {
           padding: 1.5rem;
           transition: transform var(--transition-fast);
+          position: relative;
+          overflow: hidden;
         }
 
         .jar-card:hover {
           transform: translateY(-5px);
           border-color: var(--jar-color);
+        }
+
+        .jar-description-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.85);
+          backdrop-filter: blur(8px);
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          opacity: 0;
+          transition: opacity var(--transition-normal);
+          pointer-events: none;
+          z-index: 2;
+        }
+
+        .jar-card:hover .jar-description-overlay {
+          opacity: 1;
+        }
+
+        .jar-description-overlay p {
+          font-size: 0.95rem;
+          color: white;
+          line-height: 1.6;
         }
 
         .jar-header {
@@ -156,6 +246,45 @@ const Dashboard = () => {
         .jar-progress-fill {
           height: 100%;
           border-radius: 10px;
+          transition: width 0.5s ease-out;
+        }
+
+        .goal-trigger-btn {
+          background: none;
+          padding: 0.5rem;
+          border-radius: 50%;
+          transition: background 0.2s;
+        }
+
+        .goal-trigger-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .goal-status {
+          margin-top: -0.5rem;
+        }
+
+        .goal-info {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.75rem;
+          margin-bottom: 0.4rem;
+          color: var(--text-tertiary);
+        }
+
+        .goal-percent {
+          font-weight: 700;
+          color: var(--jar-color);
+        }
+
+        .eta-info {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin-top: 0.6rem;
+          font-size: 0.75rem;
+          color: var(--accent-cyan);
+          opacity: 0.8;
         }
 
         .quick-actions {
