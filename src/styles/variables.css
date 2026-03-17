@@ -1,0 +1,67 @@
+:root {
+  /* Colors - Premium Dark Theme */
+  --bg-primary: #0a0a0b;
+  --bg-secondary: #141416;
+  --bg-tertiary: #1c1c1f;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #71717a;
+  
+  --accent-cyan: #00d1ff;
+  --accent-purple: #7000ff;
+  --accent-success: #00ff94;
+  --accent-danger: #ff3d00;
+  --accent-warning: #ffb800;
+  
+  /* Jar Specific Colors */
+  --color-nec: #00d1ff; /* Essential */
+  --color-ffa: #7000ff; /* Financial Freedom */
+  --color-lts: #00ff94; /* Long-term Saving */
+  --color-edu: #ffb800; /* Education */
+  --color-play: #ff00c8;/* Play */
+  --color-give: #ff3d00;/* Give */
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(12px);
+  
+  /* Borders & Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --border-width: 1px;
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: var(--border-width) solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition-fast);
+}
