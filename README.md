@@ -45,8 +45,6 @@ QLTC isn't just a money management app; it's a **technological masterpiece** des
 }
 ```
 
-![QLTC Hero Banner](./src/assets/qltc_hero_readme.png)
-
 <div align="center">
 
 *Built with 💙 by frenkie.*  
