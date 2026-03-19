@@ -17,7 +17,7 @@ graph TD
 
 - **UI Layer**: Chịu trách nhiệm hiển thị và nhận tương tác.
 - **Auth Layer**: Xử lý Đăng nhập/Đăng xuất (Email & Google OAuth).
-- **State Layer (Context API)**: Quản lý trạng thái cục bộ, đồng bộ hóa giữa UI và Supabase.
+- **State Layer (Context API)**: Quản lý trạng thái cục bộ, đồng bộ hóa giữa UI và Supabase. Bao gồm logic kiểm soát kỷ luật (Time-lock) cho việc thay đổi tỷ lệ hũ.
 - **Storage Layer**: Gọi các API của Supabase để đọc/ghi dữ liệu.
 
 ## 2. Luồng Dữ liệu (Data Flow)
@@ -28,6 +28,12 @@ graph TD
 3. **Context** gọi **Logic** để kiểm tra tính hợp lệ (Số dư hũ).
 4. Nếu hợp lệ, **Context** cập nhật State cục bộ và gọi **Storage** để lưu vào LocalStorage.
 5. **UI** tự động render lại nhờ State thay đổi.
+
+### Điều chỉnh tỷ lệ hũ (Adjust Percentages):
+1. **User** yêu cầu thay đổi tỷ lệ trong Settings.
+2. **Context** kiểm tra `last_percentage_update` (phải > 30 ngày).
+3. Nếu hợp lệ, **Context** lưu tỷ lệ mới, cập nhật timestamp và lý do thay đổi vào **DB**.
+4. **Context** tính toán lại số dư hũ nếu cần hoặc áp dụng cho các thu nhập tương lai.
 
 ## 3. Quản lý Trạng thái (State Management)
 

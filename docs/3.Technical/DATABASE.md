@@ -12,8 +12,11 @@ Dùng để lưu số dư và mục tiêu cho từng loại hũ của mỗi ngư
 | `user_id` | uuid | FK đến `auth.users` |
 | `jar_id` | text | Mã hũ ('nec', 'ffa', 'lts', 'edu', 'play', 'give') |
 | `balance` | numeric | Số dư hiện tại |
+| `percentage` | numeric | Tỷ lệ phân bổ hiện tại của hũ (%) |
 | `target_amount` | numeric | Mục tiêu tài chính cho hũ |
 | `goal_start_date`| timestamp| Ngày bắt đầu thực hiện mục tiêu |
+| `last_percentage_update`| timestamp| Lần cuối cùng thay đổi tỷ lệ hũ |
+| `last_update_reason`| text | Lý do thay đổi tỷ lệ gần nhất |
 
 ### Bảng `transactions` (Lịch sử giao dịch)
 Lưu trữ mọi biến động số dư.

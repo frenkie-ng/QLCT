@@ -12,6 +12,7 @@ Giải quyết vấn đề "vòng lặp hết tiền" bằng cách tạo ra mộ
 
 ## 3. Tính năng cốt lõi (Core Features)
 - **Quản lý Thu nhập**: Nhập lương/thu nhập và tự động chia vào 6 hũ theo tỷ lệ định trước.
+- **Cấu hình Tỷ lệ Hũ (với ràng buộc kỉ luật)**: Cho phép thay đổi tỷ lệ % của các hũ mỗi 30 ngày để thích ứng với nhu cầu thực tế nhưng vẫn đảm bảo tính kiên trì.
 - **Quản lý Chi tiêu**: Nhập giao dịch và trừ trực tiếp vào một hũ cụ thể.
 - **Xác thực người dùng**: Đăng nhập bằng Email/Mật khẩu hoặc Google để đồng bộ dữ liệu.
 - **Cảnh báo Ngân sách**: Hiển thị trạng thái "An toàn", "Sắp hết" hoặc "Hết tiền" cho từng hũ.

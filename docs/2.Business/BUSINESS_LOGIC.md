@@ -19,10 +19,9 @@ Hệ thống dựa trên nguyên tắc **"Pay Yourself First" (Trả cho bản t
 ## 3. Các Tính năng Chính & Quy tắc Xử lý
 
 ### A. Quản lý Thu nhập (Income)
-- **Quy tắc**: Khi có thu nhập mới, hệ thống tính toán số tiền tương ứng cho từng hũ.
+- **Quy tắc**: Khi có thu nhập mới, hệ thống tính toán số tiền tương ứng cho từng hũ dựa trên tỷ lệ % hiện tại.
 - **Tính năng**: 
   - Nhập số tiền thu nhập.
-  - Cho phép điều chỉnh tỷ lệ % (nếu người dùng muốn tùy chỉnh tháng đó).
   - Tự động cộng dồn số dư vào các hũ.
 
 ### B. Quản lý Chi tiêu (Expense)
@@ -35,7 +34,12 @@ Hệ thống dựa trên nguyên tắc **"Pay Yourself First" (Trả cho bản t
 - **Quy tắc**: Cho phép vay mượn giữa các hũ (trừ hũ FFA).
 - **Tính năng**: Chuyển tiền từ hũ A sang hũ B kèm ghi chú lý do (ví dụ: *"Vay hũ Tiết kiệm để bù hũ Thiết yếu"*).
 
-### D. Báo cáo & Cảnh báo (Analytics & Alerts)
+### D. Điều chỉnh Tỷ lệ Hũ (Adjusting Jar Percentages) - **Tính năng Kỷ luật**
+- **Quy tắc 30 ngày**: Chỉ được phép thực hiện một lần điều chỉnh sau mỗi 30 ngày kể từ lần cấu hình gần nhất. Điều này ngăn chặn việc thay đổi tùy hứng để chi tiêu quá độ.
+- **Yêu cầu phản hồi**: Người dùng phải cung cấp lý do ngắn gọn cho sự thay đổi (tạo sự tự thức).
+- **Ràng buộc tổng**: Tổng số 6 hũ phải luôn bằng 100%.
+
+### E. Báo cáo & Cảnh báo (Analytics & Alerts)
 - **Biểu đồ sức khỏe**: Hiển thị tỷ lệ tiêu dùng thực tế.
 - **Chỉ số Sống sót**: Tính toán dựa trên số dư hũ Thiết yếu, bạn có thể sống được bao nhiêu ngày nữa nếu không có thu nhập.
 
