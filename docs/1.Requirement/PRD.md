@@ -27,3 +27,9 @@ Giải quyết vấn đề "vòng lặp hết tiền" bằng cách tạo ra mộ
 ## 5. Chỉ số thành công (KPIs)
 - Người dùng không tiêu quá số tiền trong hũ "Thiết yếu".
 - Số dư hũ "Tự do tài chính" tăng trưởng hàng tháng.
+- Người dùng tuyệt đối an tâm về quyền riêng tư.
+
+## 6. Lộ trình tương lai (Future Roadmap)
+- [ ] **End-to-End Encryption (E2EE)**: Mã hóa dữ liệu tại máy người dùng bằng Khóa bảo mật (Master Key). Đảm bảo ngay cả Admin cũng không thể xem được chi tiết thu chi của khách hàng.
+- [ ] ** Mobile App (React Native)**: Mở rộng ra ứng dụng di động chính thức.
+- [ ] **Báo cáo định kỳ**: Tự động gửi email tóm tắt tình hình tài chính hàng tuần.
