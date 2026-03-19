@@ -5,11 +5,13 @@ import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
 import './App.css';
 
+import LoadingScreen from './components/LoadingScreen';
+
 const AppContent = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div className="loading-screen">Khởi tạo ứng dụng...</div>;
+    return <LoadingScreen message="Đang khởi tạo ứng dụng..." />;
   }
 
   return user ? <Dashboard /> : <LoginPage />;

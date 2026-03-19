@@ -6,6 +6,7 @@ import AddTransactionModal from '../components/AddTransactionModal';
 import SetGoalModal from '../components/SetGoalModal';
 import TransactionList from '../components/TransactionList';
 import AuthModal from '../components/AuthModal';
+import LoadingScreen from '../components/LoadingScreen';
 
 const Dashboard = () => {
   const { jars, transactions, getBalanceSummary, updateJarGoal, isLoading, syncLocalDataToCloud } = useFinance();
@@ -37,7 +38,7 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    return <div className="loading-screen">Đang tải dữ liệu...</div>;
+    return <LoadingScreen message="Đang tải dữ liệu tài chính..." />;
   }
 
   return (
@@ -394,14 +395,6 @@ const Dashboard = () => {
         }
 
         .text-secondary { color: var(--text-secondary); }
-        .loading-screen {
-          height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-          color: var(--accent-cyan);
-        }
       `}</style>
     </div>
   );

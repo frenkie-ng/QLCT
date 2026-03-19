@@ -17,19 +17,24 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const handleSession = async (session) => {
+      const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       const currentUser = session?.user ?? null;
       setUser(currentUser);
       
-      if (currentUser) {
-        // Sync Profile to Supabase
-        const { user_metadata } = currentUser;
-        await supabase.from('profiles').upsert({
-          id: currentUser.id,
-          updated_at: new Date().toISOString(),
-          full_name: user_metadata?.full_name || currentUser.email.split('@')[0],
-          avatar_url: user_metadata?.avatar_url || null
-        }, { onConflict: 'id' });
-      }
+      const setup = (async () => {
+        if (currentUser) {
+          // Sync Profile to Supabase
+          const { user_metadata } = currentUser;
+          await supabase.from('profiles').upsert({
+            id: currentUser.id,
+            updated_at: new Date().toISOString(),
+            full_name: user_metadata?.full_name || currentUser.email.split('@')[0],
+            avatar_url: user_metadata?.avatar_url || null
+          }, { onConflict: 'id' });
+        }
+      })();
+
+      await Promise.all([setup, minWait]);
       setLoading(false);
     };
 
