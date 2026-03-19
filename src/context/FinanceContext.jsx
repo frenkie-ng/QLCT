@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabaseClient';
+import { useAuth } from './AuthContext';
 
 const FinanceContext = createContext();
 
@@ -20,38 +22,156 @@ const INITIAL_JARS = [
 ];
 
 export const FinanceProvider = ({ children }) => {
-  const [jars, setJars] = useState(() => {
-    const saved = localStorage.getItem('qltc_jars');
-    if (saved) {
-      const savedJars = JSON.parse(saved);
-      // Kết hợp dữ liệu đã lưu (số dư) với metadata mới (mô tả, màu sắc) từ INITIAL_JARS
-      return INITIAL_JARS.map(initJar => {
-        const savedJar = savedJars.find(sj => sj.id === initJar.id);
-        return savedJar ? { 
-          ...initJar, 
-          balance: savedJar.balance,
-          targetAmount: savedJar.targetAmount || 0,
-          goalStartDate: savedJar.goalStartDate || null
-        } : initJar;
-      });
-    }
-    return INITIAL_JARS;
-  });
+  const { user } = useAuth();
+  const [jars, setJars] = useState(INITIAL_JARS);
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem('qltc_transactions');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  // Load initial data
   useEffect(() => {
-    localStorage.setItem('qltc_jars', JSON.stringify(jars));
-    localStorage.setItem('qltc_transactions', JSON.stringify(transactions));
-  }, [jars, transactions]);
+    const loadData = async () => {
+      setIsLoading(true);
+      if (user) {
+        try {
+          // Fetch from Supabase
+          const { data: jarsData, error: jarsError } = await supabase
+            .from('jars')
+            .select('*')
+            .eq('user_id', user.id);
+          
+          if (jarsError) throw jarsError;
 
-  // Logic thêm thu nhập (Phân bổ vào các hũ)
-  const addIncome = (amount, debtAmount = 0, note = 'Thu nhập mới') => {
+          const { data: transData } = await supabase
+            .from('transactions')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('date', { ascending: false });
+
+          if (jarsData && jarsData.length > 0) {
+            // Case 1: Database has data, use it
+            setJars(INITIAL_JARS.map(initJar => {
+              const savedJar = jarsData.find(sj => sj.jar_id === initJar.id);
+              return savedJar ? { 
+                ...initJar, 
+                balance: Number(savedJar.balance),
+                targetAmount: Number(savedJar.target_amount) || 0,
+                goalStartDate: savedJar.goal_start_date || null
+              } : initJar;
+            }));
+            if (transData) setTransactions(transData);
+          } else {
+            // Case 2: Database is empty, check localStorage for migration
+            const savedJars = localStorage.getItem('qltc_jars');
+            const savedTrans = localStorage.getItem('qltc_transactions');
+            
+            if (savedJars) {
+              const parsedJars = JSON.parse(savedJars);
+              const parsedTrans = savedTrans ? JSON.parse(savedTrans) : [];
+              
+              // Migrate Local to Cloud
+              const jarUpdates = parsedJars.map(jar => ({
+                user_id: user.id,
+                jar_id: jar.id || jar.jar_id,
+                balance: jar.balance,
+                target_amount: jar.targetAmount || jar.target_amount || 0,
+                goal_start_date: jar.goalStartDate || jar.goal_start_date
+              }));
+              
+              await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
+              
+              if (parsedTrans.length > 0) {
+                const transUpdates = parsedTrans.map(t => ({
+                  id: t.id,
+                  user_id: user.id,
+                  date: t.date,
+                  type: t.type,
+                  amount: t.amount,
+                  jar_id: t.jarId || t.jar_id,
+                  note: t.note,
+                  category: t.category,
+                  debt_amount: t.debtAmount || t.debt_amount,
+                  remaining_amount: t.remainingAmount || t.remaining_amount,
+                  is_allocation: t.isAllocation || t.is_allocation
+                }));
+                await supabase.from('transactions').upsert(transUpdates, { onConflict: 'id' });
+              }
+              
+              setJars(INITIAL_JARS.map(initJar => {
+                const savedJar = parsedJars.find(sj => (sj.id || sj.jar_id) === initJar.id);
+                return savedJar ? { 
+                  ...initJar, 
+                  balance: savedJar.balance,
+                  targetAmount: savedJar.targetAmount || savedJar.target_amount || 0,
+                  goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null
+                } : initJar;
+              }));
+              setTransactions(parsedTrans);
+              console.log('Migration to Supabase completed.');
+            } else {
+              // Case 3: Brand new user, seed INITIAL_JARS to Cloud
+              const jarUpdates = INITIAL_JARS.map(jar => ({
+                user_id: user.id,
+                jar_id: jar.id,
+                balance: 0,
+                target_amount: 0,
+                goal_start_date: null
+              }));
+              await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
+            }
+          }
+        } catch (err) {
+          console.error('Error loading Supabase data:', err);
+          // Fallback to local on error (e.g. table not created)
+          loadLocalData();
+        }
+      } else {
+        loadLocalData();
+      }
+      setIsLoading(false);
+    };
+
+    const loadLocalData = () => {
+      const savedJars = localStorage.getItem('qltc_jars');
+      const savedTrans = localStorage.getItem('qltc_transactions');
+      
+      if (savedJars) {
+        const parsedJars = JSON.parse(savedJars);
+        setJars(INITIAL_JARS.map(initJar => {
+          const savedJar = parsedJars.find(sj => sj.id === initJar.id);
+          return savedJar ? { 
+            ...initJar, 
+            balance: savedJar.balance,
+            targetAmount: savedJar.targetAmount || 0,
+            goalStartDate: savedJar.goalStartDate || null
+          } : initJar;
+        }));
+      }
+      
+      if (savedTrans) {
+        setTransactions(JSON.parse(savedTrans));
+      }
+    };
+
+    loadData();
+  }, [user]);
+
+  // Sync to Cloud/Local
+  useEffect(() => {
+    if (!isLoading) {
+      if (user) {
+        // We handle syncing per-action (addIncome, addExpense) to avoid heavy operations
+        // But we still update localStorage as a backup
+        localStorage.setItem('qltc_jars', JSON.stringify(jars));
+        localStorage.setItem('qltc_transactions', JSON.stringify(transactions));
+      } else {
+        localStorage.setItem('qltc_jars', JSON.stringify(jars));
+        localStorage.setItem('qltc_transactions', JSON.stringify(transactions));
+      }
+    }
+  }, [jars, transactions, user, isLoading]);
+
+  const addIncome = async (amount, debtAmount = 0, note = 'Thu nhập mới') => {
     const remainingAmount = amount - debtAmount;
-    
     const newJars = jars.map(jar => ({
       ...jar,
       balance: jar.balance + (remainingAmount * jar.percentage) / 100
@@ -59,21 +179,35 @@ export const FinanceProvider = ({ children }) => {
     
     const transaction = {
       id: crypto.randomUUID(),
+      user_id: user?.id,
       date: new Date().toISOString(),
       type: 'in',
       amount,
-      debtAmount,
-      remainingAmount,
+      debt_amount: debtAmount,
+      remaining_amount: remainingAmount,
       note,
-      isAllocation: true
+      is_allocation: true
     };
 
     setJars(newJars);
     setTransactions([transaction, ...transactions]);
+
+    if (user) {
+      // Sync to Supabase
+      const jarUpdates = newJars.map(jar => ({
+        user_id: user.id,
+        jar_id: jar.id,
+        balance: jar.balance,
+        target_amount: jar.targetAmount || 0,
+        goal_start_date: jar.goalStartDate
+      }));
+
+      await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
+      await supabase.from('transactions').insert(transaction);
+    }
   };
 
-  // Logic thêm chi tiêu
-  const addExpense = (amount, jarId, note, category) => {
+  const addExpense = async (amount, jarId, note, category) => {
     const jar = jars.find(j => j.id === jarId);
     if (!jar) return { success: false, message: 'Hũ không tồn tại' };
 
@@ -86,16 +220,31 @@ export const FinanceProvider = ({ children }) => {
 
     const transaction = {
       id: crypto.randomUUID(),
+      user_id: user?.id,
       date: new Date().toISOString(),
       type: 'out',
       amount,
-      jarId,
+      jar_id: jarId,
       note,
       category
     };
 
     setJars(newJars);
     setTransactions([transaction, ...transactions]);
+
+    if (user) {
+      // Sync to Supabase
+      await supabase.from('jars').upsert({
+        user_id: user.id,
+        jar_id: jarId,
+        balance: jar.balance - amount,
+        target_amount: jar.targetAmount || 0,
+        goal_start_date: jar.goalStartDate
+      }, { onConflict: 'user_id,jar_id' });
+      
+      await supabase.from('transactions').insert(transaction);
+    }
+
     return { success: true };
   };
 
@@ -103,22 +252,64 @@ export const FinanceProvider = ({ children }) => {
     return jars.reduce((total, jar) => total + jar.balance, 0);
   };
 
-  const updateJarGoal = (jarId, targetAmount) => {
-    setJars(jars.map(jar => 
+  const updateJarGoal = async (jarId, targetAmount) => {
+    const goalStartDate = targetAmount > 0 ? new Date().toISOString() : null;
+    const newJars = jars.map(jar => 
       jar.id === jarId 
-        ? { ...jar, targetAmount, goalStartDate: targetAmount > 0 ? new Date().toISOString() : null } 
+        ? { ...jar, targetAmount, goalStartDate } 
         : jar
-    ));
+    );
+
+    setJars(newJars);
+
+    if (user) {
+      const jar = newJars.find(j => j.id === jarId);
+      await supabase.from('jars').upsert({
+        user_id: user.id,
+        jar_id: jarId,
+        balance: jar.balance,
+        target_amount: targetAmount,
+        goal_start_date: goalStartDate
+      }, { onConflict: 'user_id,jar_id' });
+    }
+  };
+
+  const syncLocalDataToCloud = async () => {
+    if (!user) return { success: false, message: 'Vui lòng đăng nhập' };
+    
+    // Logic to push all local data to Supabase
+    const jarUpdates = jars.map(jar => ({
+      user_id: user.id,
+      jar_id: jar.id,
+      balance: jar.balance,
+      target_amount: jar.targetAmount || 0,
+      goal_start_date: jar.goalStartDate
+    }));
+
+    const transUpdates = transactions.map(t => ({
+      ...t,
+      user_id: user.id,
+      jar_id: t.jarId || t.jar_id // handle various keys
+    }));
+
+    await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
+    if (transUpdates.length > 0) {
+      await supabase.from('transactions').upsert(transUpdates);
+    }
+    
+    return { success: true };
   };
 
   return (
     <FinanceContext.Provider value={{ 
       jars, 
       transactions, 
+      isLoading,
       addIncome, 
       addExpense, 
       getBalanceSummary,
-      updateJarGoal
+      updateJarGoal,
+      syncLocalDataToCloud
     }}>
       {children}
     </FinanceContext.Provider>

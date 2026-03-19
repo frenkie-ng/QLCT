@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { Wallet, TrendingUp, PieChart, ArrowUpRight, ArrowDownLeft, Target, Calendar } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { Wallet, TrendingUp, PieChart, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff } from 'lucide-react';
 import AddTransactionModal from '../components/AddTransactionModal';
 import SetGoalModal from '../components/SetGoalModal';
 import TransactionList from '../components/TransactionList';
+import AuthModal from '../components/AuthModal';
 
 const Dashboard = () => {
-  const { jars, transactions, getBalanceSummary, updateJarGoal } = useFinance();
+  const { jars, transactions, getBalanceSummary, updateJarGoal, isLoading, syncLocalDataToCloud } = useFinance();
+  const { user, signOut } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('income');
   const [goalModalJar, setGoalModalJar] = useState(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const openModal = (type) => {
     setModalType(type);
@@ -19,12 +23,11 @@ const Dashboard = () => {
   const calculateETA = (jar) => {
     if (!jar.targetAmount || jar.targetAmount <= jar.balance) return null;
 
-    // Tính thu nhập trung bình 3 tháng gần nhất (mô phỏng dựa trên data hiện có)
     const incomeTransactions = transactions.filter(t => t.type === 'in');
     if (incomeTransactions.length === 0) return 'Chưa đủ dữ liệu thu nhập';
 
-    const totalIncome = incomeTransactions.reduce((sum, t) => sum + (t.remainingAmount || t.amount), 0);
-    const avgMonthlyIncome = totalIncome / Math.max(1, incomeTransactions.length); // Tạm tính theo số lần nạp
+    const totalIncome = incomeTransactions.reduce((sum, t) => sum + (t.remaining_amount || t.remainingAmount || t.amount), 0);
+    const avgMonthlyIncome = totalIncome / Math.max(1, incomeTransactions.length);
     const monthlyJarContribution = (avgMonthlyIncome * jar.percentage) / 100;
 
     if (monthlyJarContribution <= 0) return 'Tốc độ tích lũy quá thấp';
@@ -33,12 +36,34 @@ const Dashboard = () => {
     return Math.ceil(monthsRemaining);
   };
 
+  if (isLoading) {
+    return <div className="loading-screen">Đang tải dữ liệu...</div>;
+  }
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div>
-          <h1>Xin chào,</h1>
-          <p className="text-secondary">Chào mừng bạn quay lại với kế hoạch tài chính của mình.</p>
+        <div className="user-profile">
+          <div className="avatar-btn" onClick={() => !user && setIsAuthModalOpen(true)}>
+            {user ? <img src={user.user_metadata.avatar_url || `https://ui-avatars.com/api/?name=${user.email}`} alt="avatar" /> : <User size={24} />}
+          </div>
+          <div>
+            <h1>Xin chào{user ? `, ${user.email.split('@')[0]}` : ''},</h1>
+            <p className="text-secondary flex-center gap-1">
+              {user ? (
+                <>
+                  <Cloud size={14} color="var(--accent-success)" /> 
+                  <span>Đã đồng bộ</span>
+                  <button onClick={signOut} className="logout-link"><LogOut size={12} /> Đăng xuất</button>
+                </>
+              ) : (
+                <>
+                  <CloudOff size={14} color="var(--text-tertiary)" />
+                  <span>Dữ liệu cục bộ. <button onClick={() => setIsAuthModalOpen(true)} className="auth-link">Đăng nhập để lưu trữ bảo mật</button></span>
+                </>
+              )}
+            </p>
+          </div>
         </div>
         <div className="total-balance-card glass-card">
           <div className="balance-info">
@@ -127,6 +152,11 @@ const Dashboard = () => {
         onSave={updateJarGoal}
       />
 
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+
       <TransactionList />
 
       <style jsx>{`
@@ -141,6 +171,57 @@ const Dashboard = () => {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 3rem;
+        }
+
+        .user-profile {
+          display: flex;
+          align-items: center;
+          gap: 1.2rem;
+        }
+
+        .avatar-btn {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.05);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          transition: transform 0.2s;
+        }
+
+        .avatar-btn:hover {
+          transform: scale(1.05);
+          border-color: var(--accent-cyan);
+        }
+
+        .avatar-btn img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .flex-center { display: flex; align-items: center; }
+        .gap-1 { gap: 0.5rem; }
+
+        .auth-link, .logout-link {
+          background: none;
+          color: var(--accent-cyan);
+          text-decoration: underline;
+          padding: 0;
+          font-size: 0.85rem;
+          margin-left: 0.5rem;
+          cursor: pointer;
+        }
+
+        .logout-link {
+          color: var(--text-tertiary);
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
         }
 
         .total-balance-card {
@@ -313,6 +394,14 @@ const Dashboard = () => {
         }
 
         .text-secondary { color: var(--text-secondary); }
+        .loading-screen {
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.2rem;
+          color: var(--accent-cyan);
+        }
       `}</style>
     </div>
   );

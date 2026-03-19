@@ -28,12 +28,12 @@ const TransactionList = () => {
               </div>
               <div className="t-info">
                 <span className="t-note">{t.note}</span>
-                <span className="t-jar" style={{ color: getJarColor(t.jarId) }}>
+                <span className="t-jar" style={{ color: getJarColor(t.jar_id || t.jarId) }}>
                   {t.type === 'in' ? (
                     <>
-                      Phân bổ 6 hũ {t.debtAmount > 0 && <span style={{ color: 'var(--accent-warning)', fontSize: '0.75rem', marginLeft: '0.4rem' }}>(-{t.debtAmount.toLocaleString()}đ nợ)</span>}
+                      Phân bổ 6 hũ {(t.debt_amount || t.debtAmount) > 0 && <span style={{ color: 'var(--accent-warning)', fontSize: '0.75rem', marginLeft: '0.4rem' }}>(-{(t.debt_amount || t.debtAmount).toLocaleString()}đ nợ)</span>}
                     </>
-                  ) : getJarName(t.jarId)}
+                  ) : getJarName(t.jar_id || t.jarId)}
                 </span>
               </div>
               <div className="t-amount-group">
