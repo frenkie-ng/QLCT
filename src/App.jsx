@@ -9,7 +9,7 @@ import LoadingScreen from './components/LoadingScreen';
 
 const AppContent = () => {
   const { user, loading } = useAuth();
-
+  
   if (loading) {
     return <LoadingScreen message="Đang khởi tạo ứng dụng..." />;
   }

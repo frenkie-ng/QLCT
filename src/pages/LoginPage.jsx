@@ -91,9 +91,6 @@ const LoginPage = () => {
           </button>
         </div>
 
-        <div className="guest-mode">
-          <p className="text-tertiary">Hoặc tiếp tục với <button className="guest-btn">Chế độ Khách (Offline)</button></p>
-        </div>
       </div>
 
       <style jsx>{`
@@ -232,19 +229,6 @@ const LoginPage = () => {
           text-decoration: underline;
         }
 
-        .guest-mode {
-          margin-top: 1.5rem;
-          padding-top: 1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .guest-btn {
-          background: none;
-          color: var(--accent-cyan);
-          text-decoration: none;
-          padding: 0;
-          font-weight: 600;
-        }
       `}</style>
     </div>
   );
