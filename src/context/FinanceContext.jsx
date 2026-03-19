@@ -29,90 +29,46 @@ export const FinanceProvider = ({ children }) => {
 
   useEffect(() => {
     const loadData = async () => {
-      const minWait = new Promise(resolve => setTimeout(resolve, 1000));
-      setIsLoading(true);
+      const hasContent = jars.some(j => j.balance > 0) || transactions.length > 0;
+      const minWait = hasContent ? Promise.resolve() : new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (!hasContent) {
+        setIsLoading(true);
+      }
       
       const fetchData = (async () => {
+        // ... same logic as before, just kept concise ...
         if (user) {
           try {
-            // Fetch from Supabase
-            const { data: jarsData, error: jarsError } = await supabase
-              .from('jars')
-              .select('*')
-              .eq('user_id', user.id);
-
+            const { data: jarsData, error: jarsError } = await supabase.from('jars').select('*').eq('user_id', user.id);
             if (jarsError) throw jarsError;
-
-            const { data: transData } = await supabase
-              .from('transactions')
-              .select('*')
-              .eq('user_id', user.id)
-              .order('date', { ascending: false });
+            const { data: transData } = await supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false });
 
             if (jarsData && jarsData.length > 0) {
               setJars(INITIAL_JARS.map(initJar => {
                 const savedJar = jarsData.find(sj => sj.jar_id === initJar.id);
-                return savedJar ? {
-                  ...initJar,
-                  balance: Number(savedJar.balance),
-                  targetAmount: Number(savedJar.target_amount) || 0,
-                  goalStartDate: savedJar.goal_start_date || null
-                } : initJar;
+                return savedJar ? { ...initJar, balance: Number(savedJar.balance), targetAmount: Number(savedJar.target_amount) || 0, goalStartDate: savedJar.goal_start_date || null } : initJar;
               }));
               if (transData) setTransactions(transData);
             } else {
+              // Local migration logic (keep it)
               const savedJars = localStorage.getItem('qltc_jars');
-              const savedTrans = localStorage.getItem('qltc_transactions');
-
               if (savedJars) {
                 const parsedJars = JSON.parse(savedJars);
-                const parsedTrans = savedTrans ? JSON.parse(savedTrans) : [];
-                
-                const jarUpdates = parsedJars.map(jar => ({
-                  user_id: user.id,
-                  jar_id: jar.id || jar.jar_id,
-                  balance: jar.balance,
-                  target_amount: jar.targetAmount || jar.target_amount || 0,
-                  goal_start_date: jar.goalStartDate || jar.goal_start_date
-                }));
-
+                const parsedTrans = JSON.parse(localStorage.getItem('qltc_transactions') || '[]');
+                const jarUpdates = parsedJars.map(jar => ({ user_id: user.id, jar_id: jar.id || jar.jar_id, balance: jar.balance, target_amount: jar.targetAmount || jar.target_amount || 0, goal_start_date: jar.goalStartDate || jar.goal_start_date }));
                 await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
-
                 if (parsedTrans.length > 0) {
-                  const transUpdates = parsedTrans.map(t => ({
-                    id: t.id,
-                    user_id: user.id,
-                    date: t.date,
-                    type: t.type,
-                    amount: t.amount,
-                    jar_id: t.jarId || t.jar_id,
-                    note: t.note,
-                    category: t.category,
-                    debt_amount: t.debtAmount || t.debt_amount,
-                    remaining_amount: t.remainingAmount || t.remaining_amount,
-                    is_allocation: t.isAllocation || t.is_allocation
-                  }));
-                  await supabase.from('transactions').upsert(transUpdates, { onConflict: 'id' });
+                    const transUpdates = parsedTrans.map(t => ({ id: t.id, user_id: user.id, date: t.date, type: t.type, amount: t.amount, jar_id: t.jarId || t.jar_id, note: t.note, category: t.category, debt_amount: t.debtAmount || t.debt_amount, remaining_amount: t.remainingAmount || t.remaining_amount, is_allocation: t.isAllocation || t.is_allocation }));
+                    await supabase.from('transactions').upsert(transUpdates, { onConflict: 'id' });
                 }
-
                 setJars(INITIAL_JARS.map(initJar => {
                   const savedJar = parsedJars.find(sj => (sj.id || sj.jar_id) === initJar.id);
-                  return savedJar ? {
-                    ...initJar,
-                    balance: savedJar.balance,
-                    targetAmount: savedJar.targetAmount || savedJar.target_amount || 0,
-                    goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null
-                  } : initJar;
+                  return savedJar ? { ...initJar, balance: savedJar.balance, targetAmount: savedJar.targetAmount || savedJar.target_amount || 0, goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null } : initJar;
                 }));
                 setTransactions(parsedTrans);
               } else {
-                const jarUpdates = INITIAL_JARS.map(jar => ({
-                  user_id: user.id,
-                  jar_id: jar.id,
-                  balance: 0,
-                  target_amount: 0,
-                  goal_start_date: null
-                }));
+                const jarUpdates = INITIAL_JARS.map(jar => ({ user_id: user.id, jar_id: jar.id, balance: 0, target_amount: 0, goal_start_date: null }));
                 await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
               }
             }
@@ -132,23 +88,14 @@ export const FinanceProvider = ({ children }) => {
     const loadLocalData = () => {
       const savedJars = localStorage.getItem('qltc_jars');
       const savedTrans = localStorage.getItem('qltc_transactions');
-
       if (savedJars) {
         const parsedJars = JSON.parse(savedJars);
         setJars(INITIAL_JARS.map(initJar => {
           const savedJar = parsedJars.find(sj => sj.id === initJar.id);
-          return savedJar ? {
-            ...initJar,
-            balance: savedJar.balance,
-            targetAmount: savedJar.targetAmount || 0,
-            goalStartDate: savedJar.goalStartDate || null
-          } : initJar;
+          return savedJar ? { ...initJar, balance: savedJar.balance, targetAmount: savedJar.targetAmount || 0, goalStartDate: savedJar.goalStartDate || null } : initJar;
         }));
       }
-
-      if (savedTrans) {
-        setTransactions(JSON.parse(savedTrans));
-      }
+      if (savedTrans) setTransactions(JSON.parse(savedTrans));
     };
 
     loadData();

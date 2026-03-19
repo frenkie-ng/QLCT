@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const AuthContext = createContext();
@@ -15,15 +15,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const isFirstLoad = useRef(true);
+
   useEffect(() => {
     const handleSession = async (session) => {
-      const minWait = new Promise(resolve => setTimeout(resolve, 1000));
       const currentUser = session?.user ?? null;
+      
+      // Artificial delay only for the literal first load of the app
+      const needsDelay = isFirstLoad.current;
+      const minWait = needsDelay ? new Promise(resolve => setTimeout(resolve, 1000)) : Promise.resolve();
+      
       setUser(currentUser);
       
       const setup = (async () => {
         if (currentUser) {
-          // Sync Profile to Supabase
           const { user_metadata } = currentUser;
           await supabase.from('profiles').upsert({
             id: currentUser.id,
@@ -36,14 +41,14 @@ export const AuthProvider = ({ children }) => {
 
       await Promise.all([setup, minWait]);
       setLoading(false);
+      isFirstLoad.current = false;
     };
 
-    // Check active sessions and sets the user
+    // Check active sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSession(session);
     });
 
-    // Listen for changes on auth state (signed in, signed out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       handleSession(session);
     });
