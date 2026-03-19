@@ -13,14 +13,16 @@ Giải quyết vấn đề "vòng lặp hết tiền" bằng cách tạo ra mộ
 ## 3. Tính năng cốt lõi (Core Features)
 - **Quản lý Thu nhập**: Nhập lương/thu nhập và tự động chia vào 6 hũ theo tỷ lệ định trước.
 - **Quản lý Chi tiêu**: Nhập giao dịch và trừ trực tiếp vào một hũ cụ thể.
+- **Xác thực người dùng**: Đăng nhập bằng Email/Mật khẩu hoặc Google để đồng bộ dữ liệu.
 - **Cảnh báo Ngân sách**: Hiển thị trạng thái "An toàn", "Sắp hết" hoặc "Hết tiền" cho từng hũ.
-- **Báo cáo Phân tích**: Biểu đồ hình tròn cho thấy sự phân bổ thực tế so với kế hoạch.
-- **Nhắc nhở**: Thông báo nhập chi tiêu cuối ngày (tương lai).
+- **Báo cáo Phân tích**: Biểu đồ cho thấy sự phân bổ thực tế so với kế hoạch.
+- **Đồng bộ hóa**: Tự động sao lưu và đồng bộ đa thiết bị (Máy tính, Điện thoại).
 
 ## 4. Đặc tả Kỹ thuật (Technical Specs)
 - **Công nghệ**: React, Vite, Vanilla CSS.
-- **Lưu trữ**: LocalStorage (Dữ liệu nằm trên máy người dùng, đảm bảo riêng tư).
-- **Trải nghiệm**: Không cần đăng nhập (Quick access), ưu tiên tốc độ nhập liệu.
+- **Lớp Dữ liệu**: Supabase (PostgreSQL).
+- **Xác thực**: Supabase Auth (Email + Google OAuth).
+- **Lưu trữ**: Row Level Security (RLS) để đảm bảo quyền riêng tư tuyệt đối trên máy chủ.
 
 ## 5. Chỉ số thành công (KPIs)
 - Người dùng không tiêu quá số tiền trong hũ "Thiết yếu".

@@ -8,16 +8,17 @@ Tài liệu này định hình cách ứng dụng được xây dựng về mặ
 
 ```mermaid
 graph TD
-    UI[Lớp Giao diện - React Components] --> State[Lớp Quản lý Trạng thái - Context API]
+    UI[Lớp Giao diện - React Components] --> Auth[Xác thực - Supabase Auth]
+    UI --> State[Lớp Quản lý Trạng thái - Context API]
     State --> Logic[Lớp Nghiệp vụ - Service/Utils]
-    State --> Storage[Lớp Lưu trữ - LocalStorage Adapter]
-    Logic --> State
+    State --> Storage[Lớp Lưu trữ - Supabase Client]
+    Storage <--> DB[(Database - Supabase/Postgres)]
 ```
 
-- **UI Layer**: Chịu trách nhiệm hiển thị và nhận tương tác từ người dùng. Không chứa logic tính toán phức tạp.
-- **State Layer (Context API)**: "Nguồn chân lý" duy nhất của ứng dụng. Quản lý danh sách giao dịch, trạng thái các hũ và thông tin người dùng.
-- **Logic Layer (Service)**: Chứa các hàm tính toán 6 hũ, tính % chi tiêu, kiểm tra số dư. Giúp code sạch và dễ kiểm thử.
-- **Storage Layer**: Xử lý việc đọc/ghi dữ liệu vào `LocalStorage`.
+- **UI Layer**: Chịu trách nhiệm hiển thị và nhận tương tác.
+- **Auth Layer**: Xử lý Đăng nhập/Đăng xuất (Email & Google OAuth).
+- **State Layer (Context API)**: Quản lý trạng thái cục bộ, đồng bộ hóa giữa UI và Supabase.
+- **Storage Layer**: Gọi các API của Supabase để đọc/ghi dữ liệu.
 
 ## 2. Luồng Dữ liệu (Data Flow)
 

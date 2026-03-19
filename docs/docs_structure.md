@@ -33,9 +33,11 @@ Tài liệu được tổ chức theo từng vai trò để bạn dễ dàng tra
 - **[BUSINESS_LOGIC.md](./2.Business/BUSINESS_LOGIC.md)**: Xác định "Quy tắc nghiệp vụ là gì?". Logic 6 hũ, quy tắc phân bổ, điều chuyển tiền.
 
 ### 📂 [3.Technical](./3.Technical) (Tài liệu Kỹ thuật)
-- **[ARCHITECTURE.md](./3.Technical/ARCHITECTURE.md)**: Kiến trúc tổng thể, luồng dữ liệu, quản lý trạng thái.
-- **[DATABASE.md](./3.Technical/DATABASE.md)**: Sơ đồ dữ liệu (JSON/LocalStorage/IndexedDB).
-- **[FOLDER_STRUCTURE.md](./3.Technical/FOLDER_STRUCTURE.md)**: Cách tổ chức mã nguồn (Source code).
+- [**ARCHITECTURE.md**](./3.Technical/ARCHITECTURE.md): Kiến trúc tổng thể, luồng dữ liệu, quản lý trạng thái.
+- [**DATABASE.md**](./3.Technical/DATABASE.md): Sơ đồ dữ liệu (SQL Schema & RLS).
+- [**SECURITY.md**](./3.Technical/SECURITY.md): Các biện pháp bảo mật và quyền riêng tư.
+- [**SUPABASE_PLAN.md**](./3.Technical/SUPABASE_PLAN.md): Kế hoạch triển khai chi tiết.
+- [**FOLDER_STRUCTURE.md**](./3.Technical/FOLDER_STRUCTURE.md): Cách tổ chức mã nguồn (Source code).
 
 ### 📂 [4.Design](./4.Design) (Thiết kế UI/UX)
 - **[DESIGN_SYSTEM.md](./4.Design/DESIGN_SYSTEM.md)**: Màu sắc, phông chữ, phong cách Glassmorphism.
