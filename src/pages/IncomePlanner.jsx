@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { usePlanner } from '../context/PlannerContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, LayoutGrid, List, BarChart2, Calendar, Target, TrendingUp, Lightbulb } from 'lucide-react';
+import { Plus, LayoutGrid, List, BarChart2, Calendar, Target, TrendingUp, Lightbulb, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const IncomePlanner = () => {
@@ -65,6 +65,11 @@ const IncomePlanner = () => {
 
   return (
     <div className="income-planner">
+      <div style={{ marginBottom: '1rem' }}>
+        <Link to="/" className="back-link" style={{ display: 'inline-flex' }}>
+          <ArrowLeft size={18} /> Trang chủ Dashboard
+        </Link>
+      </div>
       <header className="planner-header">
         <div className="header-title">
           <h1>Hoạch Định Thu Nhập</h1>
