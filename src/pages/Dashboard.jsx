@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, TrendingUp, PieChart, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff, Target as TargetIcon, BarChart2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AddTransactionModal from '../components/AddTransactionModal';
 import SetGoalModal from '../components/SetGoalModal';
 import TransactionList from '../components/TransactionList';
@@ -77,6 +78,21 @@ const Dashboard = () => {
         </div>
       </header>
 
+      <section className="quick-actions-top">
+        <Link to="/planner" className="action-btn-compact planner-btn">
+          <BarChart2 size={16} />
+          <span>Kế hoạch</span>
+        </Link>
+        <button className="action-btn-compact income-btn" onClick={() => openModal('income')}>
+          <ArrowUpRight size={16} />
+          <span>Thu nhập</span>
+        </button>
+        <button className="action-btn-compact expense-btn" onClick={() => openModal('expense')}>
+          <ArrowDownLeft size={16} />
+          <span>Chi tiêu</span>
+        </button>
+      </section>
+
       <section className="jars-grid">
         {jars.map(jar => (
           <div key={jar.id} className="jar-card glass-card" style={{ '--jar-color': jar.color }}>
@@ -127,17 +143,6 @@ const Dashboard = () => {
             </div>
           </div>
         ))}
-      </section>
-
-      <section className="quick-actions">
-        <button className="action-btn income-btn" onClick={() => openModal('income')}>
-          <ArrowUpRight size={20} />
-          <span>Thêm Thu nhập</span>
-        </button>
-        <button className="action-btn expense-btn" onClick={() => openModal('expense')}>
-          <ArrowDownLeft size={20} />
-          <span>Thêm Chi tiêu</span>
-        </button>
       </section>
 
       <AddTransactionModal
@@ -369,19 +374,28 @@ const Dashboard = () => {
           opacity: 0.8;
         }
 
-        .quick-actions {
+        .quick-actions-top {
           display: flex;
-          gap: 1rem;
+          justify-content: flex-end;
+          gap: 0.8rem;
+          margin-bottom: 2rem;
         }
 
-        .action-btn {
+        .action-btn-compact {
           display: flex;
           align-items: center;
-          gap: 0.8rem;
-          padding: 1rem 2rem;
-          border-radius: var(--radius-md);
-          font-weight: 600;
-          font-size: 1rem;
+          gap: 0.5rem;
+          padding: 0.6rem 1.2rem;
+          border-radius: 30px; /* Nhìn như thẻ tag (pill shape) */
+          font-weight: 500;
+          font-size: 0.9rem;
+          transition: transform 0.2s, background 0.2s;
+          cursor: pointer;
+          border: none;
+        }
+
+        .action-btn-compact:hover {
+          transform: translateY(-2px);
         }
 
         .income-btn {
@@ -392,6 +406,27 @@ const Dashboard = () => {
         .expense-btn {
           background: var(--accent-danger);
           color: #fff;
+        }
+
+        .planner-btn {
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--accent-cyan);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          text-decoration: none;
+        }
+
+        .planner-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        .planner-btn {
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--accent-cyan);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          text-decoration: none;
+        }
+        .planner-btn:hover {
+          background: rgba(255, 255, 255, 0.15);
         }
 
         .text-secondary { color: var(--text-secondary); }

@@ -4,6 +4,23 @@
 
 ## 1. Sơ đồ các bảng (Tables)
 
+### Bảng `income_projects` (Các dự án kiếm tiền)
+Quản lý các ý tưởng, dự án nằm trong tính năng Income Planner.
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | uuid | Khóa chính (Primary Key) |
+| `user_id` | uuid | FK đến `auth.users` |
+| `name` | text | Tên dự án/Nguồn thu |
+| `category` | text | Phân loại (đầu tư, freelance...) |
+| `priority` | text | 'high', 'medium', 'low' |
+| `status` | text | 'idea', 'researching', 'executing', 'active', 'paused' |
+| `setup_time` | text | Thời gian triển khai dự kiến |
+| `capital_required` | numeric | Vốn ước tính cần thiết |
+| `capital_jar_id` | text | Hũ cung cấp vốn (FK -> `jars.jar_id`) |
+| `target_jar_id` | text | Hũ nhận lợi nhuận (FK -> `jars.jar_id`) |
+| `markdown_notes` | text | Ghi chú chi tiết (Markdown) |
+| `created_at` | timestamp| Ngày tạo |
+
 ### Bảng `jars` (Quản lý các hũ)
 Dùng để lưu số dư và mục tiêu cho từng loại hũ của mỗi người dùng.
 | Column | Type | Description |
@@ -29,6 +46,7 @@ Lưu trữ mọi biến động số dư.
 | `amount` | numeric | Số tiền |
 | `jar_id` | text | Hũ tương ứng |
 | `note` | text | Ghi chú của người dùng |
+| `project_id` | uuid | (Optional) FK đến `income_projects.id` để track ROI lợi nhuận/chi phí của một dự án cụ thể. |
 
 ## 2. Bảo mật Row Level Security (RLS)
 Mọi bảng đều phải bật RLS để đảm bảo tính riêng tư:

@@ -28,6 +28,7 @@ Tài liệu được tổ chức theo từng vai trò để bạn dễ dàng tra
 ### 📂 [1.Requirement](./1.Requirement) (Tài liệu Yêu cầu)
 - **[PRD.md](./1.Requirement/PRD.md)**: Xác định "Sản phẩm làm cái gì?". Mục tiêu, tính năng chính và KPI.
 - **[USER_FLOW.md](./1.Requirement/USER_FLOW.md)**: Mô tả luồng đi của người dùng trong app.
+- **[INCOME_PLANNER.md](./1.Requirement/INCOME_PLANNER.md)**: Thiết kế tính năng "Hoạch định Thu nhập" (Quản lý dự án kiếm tiền, tracking lộ trình thu nhập).
 
 ### 📂 [2.Business](./2.Business) (Phân tích Nghiệp vụ - BA)
 - **[BUSINESS_LOGIC.md](./2.Business/BUSINESS_LOGIC.md)**: Xác định "Quy tắc nghiệp vụ là gì?". Logic 6 hũ, quy tắc phân bổ, điều chuyển tiền.

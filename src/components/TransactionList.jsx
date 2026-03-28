@@ -21,7 +21,7 @@ const TransactionList = () => {
         {transactions.length === 0 ? (
           <p className="empty-msg">Chưa có giao dịch nào.</p>
         ) : (
-          transactions.map(t => (
+          transactions.slice(0, 10).map(t => (
             <div key={t.id} className="transaction-item glass-card">
               <div className="t-icon" style={{ backgroundColor: t.type === 'in' ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
                 {t.type === 'in' ? <ArrowUpRight size={18} color="#000" /> : <ArrowDownLeft size={18} color="#fff" />}
@@ -50,6 +50,11 @@ const TransactionList = () => {
       <style jsx>{`
         .transaction-list-container {
           margin-top: 2rem;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: var(--radius-lg);
+          padding: 1.5rem;
+          backdrop-filter: blur(10px);
         }
 
         .list-header {
@@ -66,6 +71,15 @@ const TransactionList = () => {
           display: flex;
           flex-direction: column;
           gap: 1rem;
+          max-height: 450px;
+          overflow-y: auto;
+          padding: 1rem;
+          margin: -1rem; /* Bù lại padding để không thu hẹp danh sách */
+          scrollbar-width: none; /* Firefox */
+        }
+
+        .transactions::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Edge */
         }
 
         .transaction-item {

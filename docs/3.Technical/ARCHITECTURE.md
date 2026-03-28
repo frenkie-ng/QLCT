@@ -37,10 +37,10 @@ graph TD
 
 ## 3. Quản lý Trạng thái (State Management)
 
-Chúng ta sẽ sử dụng 2 Context chính:
+Chúng ta sẽ sử dụng các Context chính:
 - **`FinanceContext`**: Quản lý toàn bộ giao dịch (`transactions`) và cấu hình các hũ (`jars`).
-- **`ThemeContext`**: Quản lý chủ đề Dark/Light (mặc dù mặc định là Dark Premium).
-
+- **`PlannerContext`**: Quản lý danh sách các dự án/ý tưởng kiếm tiền (`income_projects`) trong phân hệ Income Planner.
+- **`ThemeContext`**: Quản lý chủ đề Dark/Light (mặc định là Dark Premium).
 ## 4. Công nghệ Lựa chọn
 - **Framework**: React 18+ với Vite (Tốc độ phát triển cực nhanh).
 - **Styling**: Vanilla CSS (CSS Variables) để kiểm soát 100% cảm giác "Premium" và hiệu ứng Glassmorphism.
