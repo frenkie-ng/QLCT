@@ -86,8 +86,8 @@ const IncomePlanner = () => {
               <List size={18} />
             </button>
           </div>
-          <button className="btn-primary" onClick={() => setIsModalOpen(true)}>
-            <Plus size={18} /> Dự án mới
+          <button className="planner-new-btn" onClick={() => setIsModalOpen(true)}>
+            <Plus size={18} /> <span>Dự án mới</span>
           </button>
         </div>
       </header>
@@ -146,8 +146,8 @@ const IncomePlanner = () => {
                 />
               </div>
               <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy</button>
-                <button type="submit" className="btn-primary">Tạo dự án</button>
+                <button type="button" className="planner-btn-secondary" onClick={() => setIsModalOpen(false)}>Hủy</button>
+                <button type="submit" className="planner-new-btn">Tạo dự án</button>
               </div>
             </form>
           </div>

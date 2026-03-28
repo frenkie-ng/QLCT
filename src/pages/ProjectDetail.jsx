@@ -32,6 +32,16 @@ const ProjectDetail = () => {
     setProject({ ...project, [name]: value });
   };
 
+  const formatNumber = (val) => {
+    if (!val) return '';
+    return val.toString().replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const handleCapitalChange = (e) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    setProject({ ...project, capital_required: rawValue });
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -61,7 +71,7 @@ const ProjectDetail = () => {
           <button className="del-btn" onClick={handleDelete}>
             <Trash2 size={16} /> Xóa
           </button>
-          <button className="btn-primary" onClick={handleSave} disabled={isSaving}>
+          <button className="planner-new-btn" onClick={handleSave} disabled={isSaving}>
             <Save size={16} /> {isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
           </button>
         </div>
@@ -106,7 +116,13 @@ const ProjectDetail = () => {
 
           <div className="form-group">
             <label>Vốn cần thiết (VNĐ)</label>
-            <input type="number" name="capital_required" value={project.capital_required || ''} onChange={handleChange} />
+            <input 
+              type="text" 
+              name="capital_required" 
+              value={formatNumber(project.capital_required)} 
+              onChange={handleCapitalChange} 
+              placeholder="VD: 5.000.000"
+            />
           </div>
 
           <div className="form-group">
