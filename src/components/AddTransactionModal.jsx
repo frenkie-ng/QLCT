@@ -26,10 +26,10 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
     // Làm sạch chuỗi: chỉ giữ lại các chữ số trước khi chuyển thành số
     const cleanAmount = amount.toString().replace(/\D/g, '');
     const cleanDebt = debt.toString().replace(/\D/g, '');
-    
+
     const numAmount = parseFloat(cleanAmount) || 0;
     const numDebt = parseFloat(cleanDebt) || 0;
-    
+
     if (type === 'income') {
       if (numAmount <= 0 && numDebt <= 0) {
         return alert('Vui lòng nhập Tổng thu nhập hoặc Số tiền nợ cần trừ');
@@ -47,7 +47,7 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
     } else {
       addExpense(numAmount, jarId, note, 'General');
     }
-    
+
     setAmount('');
     setDebt('');
     setNote('');
@@ -65,10 +65,10 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>{type === 'income' ? 'Tổng Thu nhập nhận được (VNĐ)' : 'Số tiền (VNĐ)'}</label>
-            <input 
-              type="text" 
-              value={formatNumber(amount)} 
-              onChange={handleAmountChange} 
+            <input
+              type="text"
+              value={formatNumber(amount)}
+              onChange={handleAmountChange}
               placeholder={type === 'income' ? "VD: 10.000.000" : "VD: 500.000"}
               autoFocus
             />
@@ -77,17 +77,17 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
           {type === 'income' && (
             <div className="form-group">
               <label>Số tiền trích ra trả nợ (Điện thoại, Gym...) - Nếu có</label>
-              <input 
-                type="text" 
-                value={formatNumber(debt)} 
-                onChange={(e) => setDebt(e.target.value.replace(/\D/g, ''))} 
+              <input
+                type="text"
+                value={formatNumber(debt)}
+                onChange={(e) => setDebt(e.target.value.replace(/\D/g, ''))}
                 placeholder="VD: 2.000.000"
                 style={{ borderColor: debt > 0 ? 'var(--accent-warning)' : '' }}
               />
               {debt > 0 && (
                 <p style={{ fontSize: '0.8rem', color: 'var(--accent-warning)', marginTop: '0.4rem' }}>
-                  {amount > 0 
-                    ? `Hệ thống sẽ trừ khoản nợ này ra trước, sau đó mới chia số còn lại vào 6 hũ.` 
+                  {amount > 0
+                    ? `Hệ thống sẽ trừ khoản nợ này ra trước, sau đó mới chia số còn lại vào 6 hũ.`
                     : `Bạn đang trừ nợ độc lập. Số tiền này sẽ được khấu trừ từ tất cả các hũ theo tỷ lệ % tương ứng.`}
                 </p>
               )}
@@ -107,10 +107,10 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
 
           <div className="form-group">
             <label>Ghi chú</label>
-            <input 
-              type="text" 
-              value={note} 
-              onChange={(e) => setNote(e.target.value)} 
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               placeholder="VD: Lương tháng 3 / Ăn sáng..."
             />
           </div>

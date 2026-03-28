@@ -31,11 +31,11 @@ export const FinanceProvider = ({ children }) => {
     const loadData = async () => {
       const hasContent = jars.some(j => j.balance > 0) || transactions.length > 0;
       const minWait = hasContent ? Promise.resolve() : new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       if (!hasContent) {
         setIsLoading(true);
       }
-      
+
       const fetchData = (async () => {
         // ... same logic as before, just kept concise ...
         if (user) {
@@ -59,8 +59,8 @@ export const FinanceProvider = ({ children }) => {
                 const jarUpdates = parsedJars.map(jar => ({ user_id: user.id, jar_id: jar.id || jar.jar_id, balance: jar.balance, target_amount: jar.targetAmount || jar.target_amount || 0, goal_start_date: jar.goalStartDate || jar.goal_start_date }));
                 await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
                 if (parsedTrans.length > 0) {
-                    const transUpdates = parsedTrans.map(t => ({ id: t.id, user_id: user.id, date: t.date, type: t.type, amount: t.amount, jar_id: t.jarId || t.jar_id, note: t.note, category: t.category, debt_amount: t.debtAmount || t.debt_amount, remaining_amount: t.remainingAmount || t.remaining_amount, is_allocation: t.isAllocation || t.is_allocation }));
-                    await supabase.from('transactions').upsert(transUpdates, { onConflict: 'id' });
+                  const transUpdates = parsedTrans.map(t => ({ id: t.id, user_id: user.id, date: t.date, type: t.type, amount: t.amount, jar_id: t.jarId || t.jar_id, note: t.note, category: t.category, debt_amount: t.debtAmount || t.debt_amount, remaining_amount: t.remainingAmount || t.remaining_amount, is_allocation: t.isAllocation || t.is_allocation }));
+                  await supabase.from('transactions').upsert(transUpdates, { onConflict: 'id' });
                 }
                 setJars(INITIAL_JARS.map(initJar => {
                   const savedJar = parsedJars.find(sj => (sj.id || sj.jar_id) === initJar.id);

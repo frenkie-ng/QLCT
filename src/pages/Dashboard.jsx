@@ -53,7 +53,7 @@ const Dashboard = () => {
             <p className="text-secondary flex-center gap-1">
               {user ? (
                 <>
-                  <Cloud size={14} color="var(--accent-success)" /> 
+                  <Cloud size={14} color="var(--accent-success)" />
                   <span>Đã đồng bộ</span>
                   <button onClick={signOut} className="logout-link"><LogOut size={12} /> Đăng xuất</button>
                 </>
@@ -82,8 +82,8 @@ const Dashboard = () => {
           <div key={jar.id} className="jar-card glass-card" style={{ '--jar-color': jar.color }}>
             <div className="jar-header">
               <span className="jar-badge" style={{ backgroundColor: jar.color }}>{jar.percentage}%</span>
-              <button 
-                className="goal-trigger-btn" 
+              <button
+                className="goal-trigger-btn"
                 onClick={(e) => { e.stopPropagation(); setGoalModalJar(jar); }}
                 title="Thiết lập mục tiêu"
               >
@@ -103,11 +103,11 @@ const Dashboard = () => {
                   <span className="goal-percent">{Math.min(100, Math.round((jar.balance / jar.targetAmount) * 100))}%</span>
                 </div>
                 <div className="jar-progress-bg">
-                  <div 
-                    className="jar-progress-fill" 
-                    style={{ 
-                      width: `${Math.min(100, (jar.balance / jar.targetAmount) * 100)}%`, 
-                      backgroundColor: jar.color 
+                  <div
+                    className="jar-progress-fill"
+                    style={{
+                      width: `${Math.min(100, (jar.balance / jar.targetAmount) * 100)}%`,
+                      backgroundColor: jar.color
                     }}
                   ></div>
                 </div>
@@ -121,7 +121,7 @@ const Dashboard = () => {
                 <div className="jar-progress-fill placeholder" style={{ width: '100%', backgroundColor: jar.color, opacity: 0.2 }}></div>
               </div>
             )}
-            
+
             <div className="jar-description-overlay">
               <p>{jar.description}</p>
             </div>
@@ -140,20 +140,20 @@ const Dashboard = () => {
         </button>
       </section>
 
-      <AddTransactionModal 
-        isOpen={isModalOpen} 
-        type={modalType} 
-        onClose={() => setIsModalOpen(false)} 
+      <AddTransactionModal
+        isOpen={isModalOpen}
+        type={modalType}
+        onClose={() => setIsModalOpen(false)}
       />
 
-      <SetGoalModal 
+      <SetGoalModal
         jar={goalModalJar}
         isOpen={!!goalModalJar}
         onClose={() => setGoalModalJar(null)}
         onSave={updateJarGoal}
       />
 
-      <AuthModal 
+      <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
       />
