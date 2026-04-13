@@ -8,6 +8,7 @@ import SetGoalModal from '../components/SetGoalModal';
 import TransactionList from '../components/TransactionList';
 import AuthModal from '../components/AuthModal';
 import LoadingScreen from '../components/LoadingScreen';
+import ReminderBanner from '../components/ReminderBanner';
 
 const Dashboard = () => {
   const { jars, transactions, getBalanceSummary, updateJarGoal, isLoading, syncLocalDataToCloud } = useFinance();
@@ -77,6 +78,8 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
+
+      <ReminderBanner />
 
       <section className="quick-actions-top">
         <Link to="/planner" className="action-btn-compact planner-btn">

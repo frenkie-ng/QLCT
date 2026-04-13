@@ -246,6 +246,11 @@ export const FinanceProvider = ({ children }) => {
     return { success: true };
   };
 
+  const hasTransactionToday = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return transactions.some(t => t.date.startsWith(today));
+  }, [transactions]);
+
   return (
     <FinanceContext.Provider value={{
       jars,
@@ -255,7 +260,8 @@ export const FinanceProvider = ({ children }) => {
       addExpense,
       getBalanceSummary,
       updateJarGoal,
-      syncLocalDataToCloud
+      syncLocalDataToCloud,
+      hasTransactionToday
     }}>
       {children}
     </FinanceContext.Provider>
