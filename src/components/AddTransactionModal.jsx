@@ -159,6 +159,13 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
           position: relative;
         }
 
+        @media (max-width: 480px) {
+          .modal-content {
+            width: 95%;
+            padding: 1.5rem;
+          }
+        }
+
         .modal-header {
           display: flex;
           justify-content: space-between;
@@ -183,6 +190,13 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
           appearance: none;
         }
 
+        @media (max-width: 480px) {
+          input, select {
+            padding: 1rem;
+            font-size: 1.1rem; /* Better for mobile zoom prevention */
+          }
+        }
+
         option {
           background: var(--bg-secondary);
           color: #fff;
@@ -198,6 +212,13 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
           border-radius: var(--radius-md);
           font-weight: 600;
           font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+          .submit-btn {
+            padding: 1.2rem;
+            font-size: 1.1rem;
+          }
         }
 
         .income { background: var(--accent-success); color: #000; }

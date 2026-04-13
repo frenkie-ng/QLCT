@@ -55,8 +55,8 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
   text-align: center;
   border-inline: 1px solid var(--border);
@@ -64,6 +64,14 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  #root {
+    border-inline: none;
+    padding: 0 0.8rem;
+  }
 }
 
 h1,
@@ -77,9 +85,9 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  @media (max-width: 768px) {
+    font-size: 28px;
+    margin: 16px 0;
   }
 }
 h2 {
@@ -87,8 +95,8 @@ h2 {
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+  @media (max-width: 768px) {
+    font-size: 18px;
   }
 }
 p {

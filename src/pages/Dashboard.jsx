@@ -179,11 +179,26 @@ const Dashboard = () => {
           margin: 0 auto;
         }
 
+        @media (max-width: 768px) {
+          .dashboard {
+            padding: 1rem;
+          }
+        }
+
         .dashboard-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 3rem;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          .dashboard-header {
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 2rem;
+          }
         }
 
         .user-profile {
@@ -243,6 +258,15 @@ const Dashboard = () => {
           align-items: center;
           gap: 2rem;
           min-width: 300px;
+        }
+
+        @media (max-width: 768px) {
+          .total-balance-card {
+            min-width: 0;
+            padding: 1.2rem;
+            gap: 1rem;
+            justify-content: space-between;
+          }
         }
 
         .amount {
@@ -386,6 +410,21 @@ const Dashboard = () => {
           justify-content: flex-end;
           gap: 0.8rem;
           margin-bottom: 2rem;
+          flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+          .quick-actions-top {
+            justify-content: center;
+            gap: 0.5rem;
+          }
+          
+          .action-btn-compact {
+            flex: 1 1 calc(50% - 0.5rem);
+            justify-content: center;
+            padding: 0.8rem 0.5rem;
+            font-size: 0.8rem;
+          }
         }
 
         .action-btn-compact {

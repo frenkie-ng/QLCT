@@ -135,6 +135,11 @@ const CategoryManager = () => {
           padding: 2rem;
           min-height: 100vh;
         }
+        @media (max-width: 768px) {
+          .category-manager {
+            padding: 1rem;
+          }
+        }
         .container {
           max-width: 800px;
           margin: 0 auto;
@@ -155,6 +160,13 @@ const CategoryManager = () => {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
+          gap: 1.5rem;
+        }
+        @media (max-width: 768px) {
+          .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+          }
         }
         .title-group {
           display: flex;
@@ -164,6 +176,15 @@ const CategoryManager = () => {
         .header-content h1 {
           margin: 0;
           font-size: 2rem;
+        }
+        @media (max-width: 768px) {
+          .header-content h1 {
+            font-size: 1.5rem;
+          }
+          .add-btn-primary {
+            width: 100%;
+            justify-content: center;
+          }
         }
         .add-btn-primary {
           background: var(--accent-cyan);
@@ -199,8 +220,13 @@ const CategoryManager = () => {
         }
         .categories-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 1rem;
+        }
+        @media (max-width: 480px) {
+          .categories-grid {
+            grid-template-columns: 1fr;
+          }
         }
         .category-item {
           padding: 1rem 1.5rem;

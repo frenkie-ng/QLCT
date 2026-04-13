@@ -95,6 +95,13 @@ const TransactionList = () => {
           gap: 1.5rem;
         }
 
+        @media (max-width: 768px) {
+          .transaction-item {
+            padding: 0.8rem 1rem;
+            gap: 1rem;
+          }
+        }
+
         .t-icon {
           width: 40px;
           height: 40px;
@@ -143,6 +150,12 @@ const TransactionList = () => {
           font-weight: 400;
         }
 
+        @media (max-width: 480px) {
+          .allocation-note {
+            display: none;
+          }
+        }
+
         .t-amount-group {
           text-align: right;
         }
@@ -151,6 +164,12 @@ const TransactionList = () => {
           display: block;
           font-weight: 700;
           font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+          .t-amount {
+            font-size: 0.95rem;
+          }
         }
 
         .t-amount.in { color: var(--accent-success); }
