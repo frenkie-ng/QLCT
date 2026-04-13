@@ -31,9 +31,15 @@ const TransactionList = () => {
                 <span className="t-jar" style={{ color: getJarColor(t.jar_id || t.jarId) }}>
                   {t.type === 'in' ? (
                     <>
-                      Phân bổ 6 hũ {(t.debt_amount || t.debtAmount) > 0 && <span style={{ color: 'var(--accent-warning)', fontSize: '0.75rem', marginLeft: '0.4rem' }}>(-{(t.debt_amount || t.debtAmount).toLocaleString()}đ nợ)</span>}
+                      <span className="cat-tag">{t.category || 'Thu nhập'}</span>
+                      <span className="allocation-note">Phân bổ 6 hũ {(t.debt_amount || t.debtAmount) > 0 && <span style={{ color: 'var(--accent-warning)', fontSize: '0.75rem', marginLeft: '0.4rem' }}>(-{(t.debt_amount || t.debtAmount).toLocaleString()}đ nợ)</span>}</span>
                     </>
-                  ) : getJarName(t.jar_id || t.jarId)}
+                  ) : (
+                    <>
+                      <span className="cat-tag expense">{t.category || 'Chi tiêu'}</span>
+                      {getJarName(t.jar_id || t.jarId)}
+                    </>
+                  )}
                 </span>
               </div>
               <div className="t-amount-group">
@@ -113,6 +119,28 @@ const TransactionList = () => {
         .t-jar {
           font-size: 0.85rem;
           font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.2rem;
+        }
+
+        .cat-tag {
+          background: rgba(0, 209, 255, 0.1);
+          color: var(--accent-cyan);
+          padding: 0.1rem 0.5rem;
+          border-radius: 4px;
+          font-size: 0.75rem;
+        }
+
+        .cat-tag.expense {
+          background: rgba(255, 61, 0, 0.1);
+          color: var(--accent-danger);
+        }
+
+        .allocation-note {
+          color: var(--text-tertiary);
+          font-weight: 400;
         }
 
         .t-amount-group {

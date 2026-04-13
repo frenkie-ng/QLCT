@@ -3,11 +3,14 @@ import { useFinance } from '../context/FinanceContext';
 import { X } from 'lucide-react';
 
 const AddTransactionModal = ({ type, isOpen, onClose }) => {
-  const { jars, addIncome, addExpense } = useFinance();
+  const { jars, categories, addIncome, addExpense } = useFinance();
   const [amount, setAmount] = useState('');
   const [debt, setDebt] = useState('');
   const [note, setNote] = useState('');
   const [jarId, setJarId] = useState(jars[0]?.id || 'nec');
+  
+  const filteredCategories = categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense'));
+  const [category, setCategory] = useState(filteredCategories[0]?.name || (type === 'income' ? 'Lương' : 'Khác'));
 
   if (!isOpen) return null;
 
@@ -43,9 +46,9 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
     }
 
     if (type === 'income') {
-      addIncome(numAmount, numDebt, note);
+      addIncome(numAmount, numDebt, note, category);
     } else {
-      addExpense(numAmount, jarId, note, 'General');
+      addExpense(numAmount, jarId, note, category);
     }
 
     setAmount('');
@@ -104,6 +107,19 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
               </select>
             </div>
           )}
+
+          <div className="form-group">
+            <label>Danh mục</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {filteredCategories.length > 0 ? (
+                filteredCategories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))
+              ) : (
+                <option value={type === 'income' ? 'Lương' : 'Khác'}>{type === 'income' ? 'Lương' : 'Khác'}</option>
+              )}
+            </select>
+          </div>
 
           <div className="form-group">
             <label>Ghi chú</label>

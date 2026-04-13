@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/LoginPage';
 import IncomePlanner from './pages/IncomePlanner';
 import ProjectDetail from './pages/ProjectDetail';
+import CategoryManager from './pages/CategoryManager';
 import './App.css';
 import './styles/planner.css';
 
@@ -28,6 +29,7 @@ const AppContent = () => {
       <Route path="/" element={<Dashboard />} />
       <Route path="/planner" element={<IncomePlanner />} />
       <Route path="/planner/:id" element={<ProjectDetail />} />
+      <Route path="/categories" element={<CategoryManager />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff, Target as TargetIcon, BarChart2 } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff, Target as TargetIcon, BarChart2, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddTransactionModal from '../components/AddTransactionModal';
 import SetGoalModal from '../components/SetGoalModal';
@@ -85,6 +85,10 @@ const Dashboard = () => {
         <Link to="/planner" className="action-btn-compact planner-btn">
           <BarChart2 size={16} />
           <span>Kế hoạch</span>
+        </Link>
+        <Link to="/categories" className="action-btn-compact settings-btn">
+          <Settings size={16} />
+          <span>Danh mục</span>
         </Link>
         <button className="action-btn-compact income-btn" onClick={() => openModal('income')}>
           <ArrowUpRight size={16} />
@@ -430,6 +434,18 @@ const Dashboard = () => {
         }
         .planner-btn:hover {
           background: rgba(255, 255, 255, 0.15);
+        }
+
+        .settings-btn {
+          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-secondary);
+          border: 1px solid var(--glass-border);
+          text-decoration: none;
+        }
+
+        .settings-btn:hover {
+          background: rgba(255, 255, 255, 0.1);
+          color: #fff;
         }
 
         .text-secondary { color: var(--text-secondary); }

@@ -25,6 +25,7 @@ export const FinanceProvider = ({ children }) => {
   const { user } = useAuth();
   const [jars, setJars] = useState(INITIAL_JARS);
   const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export const FinanceProvider = ({ children }) => {
             const { data: jarsData, error: jarsError } = await supabase.from('jars').select('*').eq('user_id', user.id);
             if (jarsError) throw jarsError;
             const { data: transData } = await supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false });
+            const { data: catData } = await supabase.from('categories').select('*').eq('user_id', user.id);
 
             if (jarsData && jarsData.length > 0) {
               setJars(INITIAL_JARS.map(initJar => {
@@ -50,6 +52,7 @@ export const FinanceProvider = ({ children }) => {
                 return savedJar ? { ...initJar, balance: Number(savedJar.balance), targetAmount: Number(savedJar.target_amount) || 0, goalStartDate: savedJar.goal_start_date || null } : initJar;
               }));
               if (transData) setTransactions(transData);
+              if (catData) setCategories(catData);
             } else {
               // Local migration logic (keep it)
               const savedJars = localStorage.getItem('qltc_jars');
@@ -96,6 +99,8 @@ export const FinanceProvider = ({ children }) => {
         }));
       }
       if (savedTrans) setTransactions(JSON.parse(savedTrans));
+      const savedCats = localStorage.getItem('qltc_categories');
+      if (savedCats) setCategories(JSON.parse(savedCats));
     };
 
     loadData();
@@ -109,14 +114,16 @@ export const FinanceProvider = ({ children }) => {
         // But we still update localStorage as a backup
         localStorage.setItem('qltc_jars', JSON.stringify(jars));
         localStorage.setItem('qltc_transactions', JSON.stringify(transactions));
+        localStorage.setItem('qltc_categories', JSON.stringify(categories));
       } else {
         localStorage.setItem('qltc_jars', JSON.stringify(jars));
         localStorage.setItem('qltc_transactions', JSON.stringify(transactions));
+        localStorage.setItem('qltc_categories', JSON.stringify(categories));
       }
     }
   }, [jars, transactions, user, isLoading]);
 
-  const addIncome = async (amount, debtAmount = 0, note = 'Thu nhập mới') => {
+  const addIncome = async (amount, debtAmount = 0, note = 'Thu nhập mới', category = 'Lương') => {
     const remainingAmount = amount - debtAmount;
     const newJars = jars.map(jar => ({
       ...jar,
@@ -132,6 +139,7 @@ export const FinanceProvider = ({ children }) => {
       debt_amount: debtAmount,
       remaining_amount: remainingAmount,
       note,
+      category,
       is_allocation: true
     };
 
@@ -251,17 +259,37 @@ export const FinanceProvider = ({ children }) => {
     return transactions.some(t => t.date.startsWith(today));
   }, [transactions]);
 
+  const addCategory = async (name, type, color) => {
+    if (!user) return null;
+    const newCategory = { user_id: user.id, name, type, color };
+    const { data, error } = await supabase.from('categories').insert(newCategory).select().single();
+    if (error) throw error;
+    setCategories([...categories, data]);
+    return data;
+  };
+
+  const deleteCategory = async (id) => {
+    if (!user) return false;
+    const { error } = await supabase.from('categories').delete().eq('id', id);
+    if (error) throw error;
+    setCategories(categories.filter(c => c.id !== id));
+    return true;
+  };
+
   return (
     <FinanceContext.Provider value={{
       jars,
       transactions,
+      categories,
       isLoading,
       addIncome,
       addExpense,
       getBalanceSummary,
       updateJarGoal,
       syncLocalDataToCloud,
-      hasTransactionToday
+      hasTransactionToday,
+      addCategory,
+      deleteCategory
     }}>
       {children}
     </FinanceContext.Provider>
