@@ -55,10 +55,13 @@ const ReminderBanner = () => {
 
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
+      alert('Tuyệt vời! Thông báo đã được kích hoạt.');
       new Notification('Đã bật thông báo!', {
         body: 'Chúng tôi sẽ nhắc bạn cập nhật chi tiêu hàng ngày.',
         icon: '/favicon.svg'
       });
+    } else if (permission === 'denied') {
+      alert('Bạn đã chặn thông báo. Vui lòng mở cài đặt trình duyệt (nút ổ khóa trên thanh địa chỉ) để cho phép lại.');
     }
   };
 
