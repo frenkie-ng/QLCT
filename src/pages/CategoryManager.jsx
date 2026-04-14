@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { ArrowLeft, Plus, Trash2, Tag, PieChart, TrendingUp, Wallet } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Tag, PieChart, TrendingUp, Wallet, Settings2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import JarSettings from '../components/JarSettings';
 
 const CategoryManager = () => {
   const { categories, addCategory, deleteCategory, isLoading } = useFinance();
@@ -47,13 +48,15 @@ const CategoryManager = () => {
             <div className="title-group">
               <Tag size={32} color="var(--accent-cyan)" />
               <div>
-                <h1>Quản lý Danh mục</h1>
-                <p className="text-secondary">Tùy chỉnh các nguồn thu và khoản chi của bạn</p>
+                <h1>Quản lý Cấu hình</h1>
+                <p className="text-secondary">Tùy chỉnh danh mục và tỷ lệ phân bổ các hũ</p>
               </div>
             </div>
-            <button className="add-btn-primary" onClick={() => setIsAdding(true)}>
-              <Plus size={20} /> <span>Thêm danh mục</span>
-            </button>
+            {activeTab !== 'jars' && (
+              <button className="add-btn-primary" onClick={() => setIsAdding(true)}>
+                <Plus size={20} /> <span>Thêm danh mục</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -70,28 +73,38 @@ const CategoryManager = () => {
           >
             <Wallet size={18} /> Chi tiêu
           </button>
+          <button 
+            className={`tab-btn ${activeTab === 'jars' ? 'active' : ''}`}
+            onClick={() => setActiveTab('jars')}
+          >
+            <Settings2 size={18} /> Cấu hình Hũ
+          </button>
         </div>
 
-        <div className="categories-grid">
-          {filteredCategories.length === 0 ? (
-            <div className="empty-state glass-card">
-              <p>Chưa có danh mục nào cho {activeTab === 'income' ? 'Thu nhập' : 'Chi tiêu'}.</p>
-              <button className="text-btn" onClick={() => setIsAdding(true)}>Tạo ngay danh mục đầu tiên</button>
-            </div>
-          ) : (
-            filteredCategories.map(category => (
-              <div key={category.id} className="category-item glass-card" style={{ borderColor: category.color + '44' }}>
-                <div className="item-main">
-                  <div className="color-dot" style={{ backgroundColor: category.color }}></div>
-                  <span className="cat-name">{category.name}</span>
-                </div>
-                <button className="delete-btn" onClick={() => handleDelete(category.id)}>
-                  <Trash2 size={18} />
-                </button>
+        {activeTab === 'jars' ? (
+          <JarSettings />
+        ) : (
+          <div className="categories-grid">
+            {filteredCategories.length === 0 ? (
+              <div className="empty-state glass-card">
+                <p>Chưa có danh mục nào cho {activeTab === 'income' ? 'Thu nhập' : 'Chi tiêu'}.</p>
+                <button className="text-btn" onClick={() => setIsAdding(true)}>Tạo ngay danh mục đầu tiên</button>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              filteredCategories.map(category => (
+                <div key={category.id} className="category-item glass-card" style={{ borderColor: category.color + '44' }}>
+                  <div className="item-main">
+                    <div className="color-dot" style={{ backgroundColor: category.color }}></div>
+                    <span className="cat-name">{category.name}</span>
+                  </div>
+                  <button className="delete-btn" onClick={() => handleDelete(category.id)}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {isAdding && (
           <div className="modal-overlay" onClick={() => setIsAdding(false)}>

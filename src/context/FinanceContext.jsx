@@ -49,7 +49,15 @@ export const FinanceProvider = ({ children }) => {
             if (jarsData && jarsData.length > 0) {
               setJars(INITIAL_JARS.map(initJar => {
                 const savedJar = jarsData.find(sj => sj.jar_id === initJar.id);
-                return savedJar ? { ...initJar, balance: Number(savedJar.balance), targetAmount: Number(savedJar.target_amount) || 0, goalStartDate: savedJar.goal_start_date || null } : initJar;
+                return savedJar ? { 
+                  ...initJar, 
+                  name: savedJar.name || initJar.name,
+                  description: savedJar.description || initJar.description,
+                  balance: Number(savedJar.balance), 
+                  targetAmount: Number(savedJar.target_amount) || 0, 
+                  goalStartDate: savedJar.goal_start_date || null,
+                  percentage: Number(savedJar.percentage) || initJar.percentage
+                } : initJar;
               }));
               if (transData) setTransactions(transData);
               if (catData) setCategories(catData);
@@ -59,7 +67,16 @@ export const FinanceProvider = ({ children }) => {
               if (savedJars) {
                 const parsedJars = JSON.parse(savedJars);
                 const parsedTrans = JSON.parse(localStorage.getItem('qltc_transactions') || '[]');
-                const jarUpdates = parsedJars.map(jar => ({ user_id: user.id, jar_id: jar.id || jar.jar_id, balance: jar.balance, target_amount: jar.targetAmount || jar.target_amount || 0, goal_start_date: jar.goalStartDate || jar.goal_start_date }));
+                const jarUpdates = parsedJars.map(jar => ({ 
+                  user_id: user.id, 
+                  jar_id: jar.id || jar.jar_id, 
+                  name: jar.name,
+                  description: jar.description,
+                  balance: jar.balance, 
+                  target_amount: jar.targetAmount || jar.target_amount || 0, 
+                  goal_start_date: jar.goalStartDate || jar.goal_start_date,
+                  percentage: jar.percentage || INITIAL_JARS.find(ij => ij.id === (jar.id || jar.jar_id))?.percentage || 0
+                }));
                 await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
                 if (parsedTrans.length > 0) {
                   const transUpdates = parsedTrans.map(t => ({ id: t.id, user_id: user.id, date: t.date, type: t.type, amount: t.amount, jar_id: t.jarId || t.jar_id, note: t.note, category: t.category, debt_amount: t.debtAmount || t.debt_amount, remaining_amount: t.remainingAmount || t.remaining_amount, is_allocation: t.isAllocation || t.is_allocation }));
@@ -67,7 +84,15 @@ export const FinanceProvider = ({ children }) => {
                 }
                 setJars(INITIAL_JARS.map(initJar => {
                   const savedJar = parsedJars.find(sj => (sj.id || sj.jar_id) === initJar.id);
-                  return savedJar ? { ...initJar, balance: savedJar.balance, targetAmount: savedJar.targetAmount || savedJar.target_amount || 0, goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null } : initJar;
+                  return savedJar ? { 
+                    ...initJar, 
+                    name: savedJar.name || initJar.name,
+                    description: savedJar.description || initJar.description,
+                    balance: savedJar.balance, 
+                    targetAmount: savedJar.targetAmount || savedJar.target_amount || 0, 
+                    goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null,
+                    percentage: savedJar.percentage || initJar.percentage
+                  } : initJar;
                 }));
                 setTransactions(parsedTrans);
               } else {
@@ -95,7 +120,15 @@ export const FinanceProvider = ({ children }) => {
         const parsedJars = JSON.parse(savedJars);
         setJars(INITIAL_JARS.map(initJar => {
           const savedJar = parsedJars.find(sj => sj.id === initJar.id);
-          return savedJar ? { ...initJar, balance: savedJar.balance, targetAmount: savedJar.targetAmount || 0, goalStartDate: savedJar.goalStartDate || null } : initJar;
+          return savedJar ? { 
+            ...initJar, 
+            name: savedJar.name || initJar.name,
+            description: savedJar.description || initJar.description,
+            balance: savedJar.balance, 
+            targetAmount: savedJar.targetAmount || 0, 
+            goalStartDate: savedJar.goalStartDate || null,
+            percentage: savedJar.percentage || initJar.percentage
+          } : initJar;
         }));
       }
       if (savedTrans) setTransactions(JSON.parse(savedTrans));
@@ -151,9 +184,12 @@ export const FinanceProvider = ({ children }) => {
       const jarUpdates = newJars.map(jar => ({
         user_id: user.id,
         jar_id: jar.id,
+        name: jar.name,
+        description: jar.description,
         balance: jar.balance,
         target_amount: jar.targetAmount || 0,
-        goal_start_date: jar.goalStartDate
+        goal_start_date: jar.goalStartDate,
+        percentage: jar.percentage
       }));
 
       await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
@@ -221,11 +257,49 @@ export const FinanceProvider = ({ children }) => {
       await supabase.from('jars').upsert({
         user_id: user.id,
         jar_id: jarId,
+        name: jar.name,
+        description: jar.description,
         balance: jar.balance,
         target_amount: targetAmount,
-        goal_start_date: goalStartDate
+        goal_start_date: goalStartDate,
+        percentage: jar.percentage
       }, { onConflict: 'user_id,jar_id' });
     }
+  };
+
+  const updateJarSettings = async (updates) => {
+    // updates is an object { jarId: { name, description, percentage } }
+    const newJars = jars.map(jar => {
+      const jarUpdate = updates[jar.id];
+      if (jarUpdate) {
+        return {
+          ...jar,
+          name: jarUpdate.name !== undefined ? jarUpdate.name : jar.name,
+          description: jarUpdate.description !== undefined ? jarUpdate.description : jar.description,
+          percentage: jarUpdate.percentage !== undefined ? jarUpdate.percentage : jar.percentage
+        };
+      }
+      return jar;
+    });
+
+    setJars(newJars);
+
+    if (user) {
+      const jarUpdates = newJars.map(jar => ({
+        user_id: user.id,
+        jar_id: jar.id,
+        name: jar.name,
+        description: jar.description,
+        balance: jar.balance,
+        target_amount: jar.targetAmount || 0,
+        goal_start_date: jar.goalStartDate,
+        percentage: jar.percentage
+      }));
+
+      await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
+    }
+
+    return { success: true };
   };
 
   const syncLocalDataToCloud = async () => {
@@ -235,9 +309,12 @@ export const FinanceProvider = ({ children }) => {
     const jarUpdates = jars.map(jar => ({
       user_id: user.id,
       jar_id: jar.id,
+      name: jar.name,
+      description: jar.description,
       balance: jar.balance,
       target_amount: jar.targetAmount || 0,
-      goal_start_date: jar.goalStartDate
+      goal_start_date: jar.goalStartDate,
+      percentage: jar.percentage
     }));
 
     const transUpdates = transactions.map(t => ({
@@ -286,6 +363,7 @@ export const FinanceProvider = ({ children }) => {
       addExpense,
       getBalanceSummary,
       updateJarGoal,
+      updateJarSettings,
       syncLocalDataToCloud,
       hasTransactionToday,
       addCategory,
