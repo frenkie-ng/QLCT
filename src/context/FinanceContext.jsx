@@ -56,7 +56,8 @@ export const FinanceProvider = ({ children }) => {
                   balance: Number(savedJar.balance), 
                   targetAmount: Number(savedJar.target_amount) || 0, 
                   goalStartDate: savedJar.goal_start_date || null,
-                  percentage: Number(savedJar.percentage) || initJar.percentage
+                  percentage: Number(savedJar.percentage) || initJar.percentage,
+                  lastConfigChange: savedJar.last_config_change || null
                 } : initJar;
               }));
               if (transData) setTransactions(transData);
@@ -75,7 +76,8 @@ export const FinanceProvider = ({ children }) => {
                   balance: jar.balance, 
                   target_amount: jar.targetAmount || jar.target_amount || 0, 
                   goal_start_date: jar.goalStartDate || jar.goal_start_date,
-                  percentage: jar.percentage || INITIAL_JARS.find(ij => ij.id === (jar.id || jar.jar_id))?.percentage || 0
+                  percentage: jar.percentage || INITIAL_JARS.find(ij => ij.id === (jar.id || jar.jar_id))?.percentage || 0,
+                  last_config_change: jar.lastConfigChange || jar.last_config_change
                 }));
                 await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
                 if (parsedTrans.length > 0) {
@@ -91,7 +93,8 @@ export const FinanceProvider = ({ children }) => {
                     balance: savedJar.balance, 
                     targetAmount: savedJar.targetAmount || savedJar.target_amount || 0, 
                     goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null,
-                    percentage: savedJar.percentage || initJar.percentage
+                    percentage: savedJar.percentage || initJar.percentage,
+                    lastConfigChange: savedJar.lastConfigChange || savedJar.last_config_change
                   } : initJar;
                 }));
                 setTransactions(parsedTrans);
@@ -127,7 +130,8 @@ export const FinanceProvider = ({ children }) => {
             balance: savedJar.balance, 
             targetAmount: savedJar.targetAmount || 0, 
             goalStartDate: savedJar.goalStartDate || null,
-            percentage: savedJar.percentage || initJar.percentage
+            percentage: savedJar.percentage || initJar.percentage,
+            lastConfigChange: savedJar.lastConfigChange || savedJar.last_config_change
           } : initJar;
         }));
       }
@@ -189,7 +193,8 @@ export const FinanceProvider = ({ children }) => {
         balance: jar.balance,
         target_amount: jar.targetAmount || 0,
         goal_start_date: jar.goalStartDate,
-        percentage: jar.percentage
+        percentage: jar.percentage,
+        last_config_change: jar.lastConfigChange
       }));
 
       await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
@@ -227,9 +232,13 @@ export const FinanceProvider = ({ children }) => {
       await supabase.from('jars').upsert({
         user_id: user.id,
         jar_id: jarId,
+        name: jar.name,
+        description: jar.description,
         balance: jar.balance - amount,
         target_amount: jar.targetAmount || 0,
-        goal_start_date: jar.goalStartDate
+        goal_start_date: jar.goalStartDate,
+        percentage: jar.percentage,
+        last_config_change: jar.lastConfigChange
       }, { onConflict: 'user_id,jar_id' });
 
       await supabase.from('transactions').insert(transaction);
@@ -262,13 +271,15 @@ export const FinanceProvider = ({ children }) => {
         balance: jar.balance,
         target_amount: targetAmount,
         goal_start_date: goalStartDate,
-        percentage: jar.percentage
+        percentage: jar.percentage,
+        last_config_change: jar.lastConfigChange
       }, { onConflict: 'user_id,jar_id' });
     }
   };
 
   const updateJarSettings = async (updates) => {
     // updates is an object { jarId: { name, description, percentage } }
+    const now = new Date().toISOString();
     const newJars = jars.map(jar => {
       const jarUpdate = updates[jar.id];
       if (jarUpdate) {
@@ -276,10 +287,11 @@ export const FinanceProvider = ({ children }) => {
           ...jar,
           name: jarUpdate.name !== undefined ? jarUpdate.name : jar.name,
           description: jarUpdate.description !== undefined ? jarUpdate.description : jar.description,
-          percentage: jarUpdate.percentage !== undefined ? jarUpdate.percentage : jar.percentage
+          percentage: jarUpdate.percentage !== undefined ? jarUpdate.percentage : jar.percentage,
+          lastConfigChange: now
         };
       }
-      return jar;
+      return { ...jar, lastConfigChange: now };
     });
 
     setJars(newJars);
@@ -293,7 +305,8 @@ export const FinanceProvider = ({ children }) => {
         balance: jar.balance,
         target_amount: jar.targetAmount || 0,
         goal_start_date: jar.goalStartDate,
-        percentage: jar.percentage
+        percentage: jar.percentage,
+        last_config_change: jar.lastConfigChange
       }));
 
       await supabase.from('jars').upsert(jarUpdates, { onConflict: 'user_id,jar_id' });
@@ -314,7 +327,8 @@ export const FinanceProvider = ({ children }) => {
       balance: jar.balance,
       target_amount: jar.targetAmount || 0,
       goal_start_date: jar.goalStartDate,
-      percentage: jar.percentage
+      percentage: jar.percentage,
+      last_config_change: jar.lastConfigChange
     }));
 
     const transUpdates = transactions.map(t => ({
