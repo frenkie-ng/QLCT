@@ -7,6 +7,12 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
 const FRONTEND_URL = Deno.env.get('FRONTEND_URL') || 'http://localhost:5173'
 
+// Email nhận thêm ngoài chủ tài khoản, cách nhau bằng dấu phẩy: "abc@gmail.com,xyz@gmail.com"
+const EXTRA_EMAILS = (Deno.env.get('REMINDER_EXTRA_EMAILS') || '')
+  .split(',')
+  .map((e) => e.trim())
+  .filter((e) => e.includes('@'))
+
 serve(async (req) => {
   try {
     // Khởi tạo Supabase Client với Service Role Key để có quyền admin
@@ -26,12 +32,14 @@ serve(async (req) => {
       const now = new Date();
       const vnTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
       const today = vnTime.toISOString().split('T')[0];
+      // 00:00 giờ VN của hôm nay, quy ra UTC (= 17:00 UTC hôm trước) để khớp với `date` lưu dạng UTC
+      const startOfTodayVN = new Date(`${today}T00:00:00+07:00`).toISOString();
 
       const { count, error: transError } = await supabase
         .from('transactions')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('date', today)
+        .gte('date', startOfTodayVN)
 
       if (transError) {
         results.push({ email: user.email, status: 'error', error: transError })
@@ -48,7 +56,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             from: 'QLTC Reminders <onboarding@resend.dev>',
-            to: [user.email],
+            to: [...new Set([user.email, ...EXTRA_EMAILS])],
             subject: '🔔 Đừng quên cập nhật chi tiêu hôm nay!',
             html: `
               <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #0b1120; color: #fff;">

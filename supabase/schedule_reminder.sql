@@ -3,7 +3,8 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- 2. Xoá job cũ nếu tồn tại để tránh trùng lặp
-SELECT cron.unschedule('daily-reminder-job');
+-- (Viết dạng này để chạy lần đầu không bị lỗi khi job chưa tồn tại)
+SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname = 'daily-reminder-job';
 
 -- 3. Lên lịch chạy Edge Function vào lúc 21:00 hàng ngày (Giờ VN)
 -- Lưu ý: Supabase server chạy giờ UTC, nên 21:00 VN tương đương 14:00 UTC

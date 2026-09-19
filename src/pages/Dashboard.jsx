@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
 import { useAuth } from '../context/AuthContext';
-import { Wallet, TrendingUp, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff, Target as TargetIcon, BarChart2, Settings } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowUpRight, ArrowDownLeft, Target, Calendar, User, LogOut, Cloud, CloudOff, Target as TargetIcon, BarChart2, Settings, PieChart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddTransactionModal from '../components/AddTransactionModal';
 import SetGoalModal from '../components/SetGoalModal';
@@ -85,6 +85,10 @@ const Dashboard = () => {
         <Link to="/planner" className="action-btn-compact planner-btn">
           <BarChart2 size={16} />
           <span>Kế hoạch</span>
+        </Link>
+        <Link to="/reports" className="action-btn-compact planner-btn">
+          <PieChart size={16} />
+          <span>Báo cáo</span>
         </Link>
         <Link to="/categories" className="action-btn-compact settings-btn">
           <Settings size={16} />
