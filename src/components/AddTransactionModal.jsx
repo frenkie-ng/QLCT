@@ -1,18 +1,60 @@
 import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
+
+const NEW_CATEGORY_COLORS = ['#00d1ff', '#7000ff', '#00ff94', '#ffb800', '#ff00c8', '#ff3d00'];
 
 const AddTransactionModal = ({ type, isOpen, onClose }) => {
-  const { jars, categories, addIncome, addExpense } = useFinance();
+  const { jars, categories, addIncome, addExpense, addCategory } = useFinance();
   const [amount, setAmount] = useState('');
   const [debt, setDebt] = useState('');
   const [note, setNote] = useState('');
   const [jarId, setJarId] = useState(jars[0]?.id || 'nec');
-  
-  const filteredCategories = categories.filter(c => c.type === (type === 'income' ? 'income' : 'expense'));
-  const [category, setCategory] = useState(filteredCategories[0]?.name || (type === 'income' ? 'Lương' : 'Khác'));
+
+  const categoryType = type === 'income' ? 'income' : 'expense';
+  const filteredCategories = categories.filter(c => c.type === categoryType);
+  const defaultCategory = filteredCategories[0]?.name || (type === 'income' ? 'Lương' : 'Khác');
+
+  // Modal luôn được mount sẵn và dùng chung cho thu/chi, nên danh mục đang chọn phải được
+  // suy ra từ loại giao dịch hiện tại. Nếu lựa chọn cũ không thuộc loại này thì dùng mặc định.
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const category = filteredCategories.some(c => c.name === selectedCategory) ? selectedCategory : defaultCategory;
+
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   if (!isOpen) return null;
+
+  const closeAddCategory = () => {
+    setIsAddingCategory(false);
+    setNewCategoryName('');
+  };
+
+  const handleAddCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    const existing = filteredCategories.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      setSelectedCategory(existing.name);
+      closeAddCategory();
+      return;
+    }
+
+    setIsSavingCategory(true);
+    try {
+      const color = NEW_CATEGORY_COLORS[filteredCategories.length % NEW_CATEGORY_COLORS.length];
+      const created = await addCategory(name, categoryType, color);
+      if (!created) throw new Error('Bạn cần đăng nhập để thêm danh mục');
+      setSelectedCategory(created.name);
+      closeAddCategory();
+    } catch (err) {
+      alert('Không thể thêm danh mục: ' + err.message);
+    } finally {
+      setIsSavingCategory(false);
+    }
+  };
 
   const formatNumber = (val) => {
     if (!val) return '';
@@ -54,6 +96,8 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
     setAmount('');
     setDebt('');
     setNote('');
+    setSelectedCategory(null);
+    closeAddCategory();
     onClose();
   };
 
@@ -110,15 +154,45 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
 
           <div className="form-group">
             <label>Danh mục</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <select value={category} onChange={(e) => setSelectedCategory(e.target.value)}>
               {filteredCategories.length > 0 ? (
                 filteredCategories.map(cat => (
                   <option key={cat.id} value={cat.name}>{cat.name}</option>
                 ))
               ) : (
-                <option value={type === 'income' ? 'Lương' : 'Khác'}>{type === 'income' ? 'Lương' : 'Khác'}</option>
+                <option value={defaultCategory}>{defaultCategory}</option>
               )}
             </select>
+
+            {isAddingCategory ? (
+              <div className="new-category-row">
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => {
+                    // Enter chỉ thêm danh mục, không gửi cả form giao dịch
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddCategory();
+                    }
+                  }}
+                  placeholder="Tên danh mục mới..."
+                  maxLength={40}
+                  autoFocus
+                />
+                <button type="button" className="new-category-save" onClick={handleAddCategory} disabled={isSavingCategory || !newCategoryName.trim()}>
+                  {isSavingCategory ? '...' : 'Thêm'}
+                </button>
+                <button type="button" className="new-category-cancel" onClick={closeAddCategory} aria-label="Hủy thêm danh mục">
+                  <X size={18} />
+                </button>
+              </div>
+            ) : (
+              <button type="button" className="add-category-btn" onClick={() => setIsAddingCategory(true)}>
+                <Plus size={14} /> Thêm danh mục mới
+              </button>
+            )}
           </div>
 
           <div className="form-group">
@@ -203,6 +277,40 @@ const AddTransactionModal = ({ type, isOpen, onClose }) => {
         }
 
         input:focus, select:focus { border-color: var(--accent-cyan); outline: none; }
+
+        .add-category-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.3rem;
+          margin-top: 0.6rem;
+          padding: 0;
+          background: none;
+          color: var(--accent-cyan);
+          font-size: 0.85rem;
+        }
+
+        .new-category-row {
+          display: flex;
+          gap: 0.5rem;
+          margin-top: 0.6rem;
+        }
+
+        .new-category-save {
+          padding: 0 1rem;
+          border-radius: var(--radius-sm);
+          background: var(--accent-cyan);
+          color: #000;
+          font-weight: 600;
+        }
+
+        .new-category-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .new-category-cancel {
+          padding: 0 0.6rem;
+          border-radius: var(--radius-sm);
+          background: var(--bg-secondary);
+          color: var(--text-secondary);
+        }
 
         .modal-actions { margin-top: 2rem; }
 
