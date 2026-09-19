@@ -51,12 +51,12 @@ export const FinanceProvider = ({ children }) => {
                 const savedJar = jarsData.find(sj => sj.jar_id === initJar.id);
                 return savedJar ? { 
                   ...initJar, 
-                  name: savedJar.name || initJar.name,
-                  description: savedJar.description || initJar.description,
+                  name: savedJar.name !== null && savedJar.name !== undefined ? savedJar.name : initJar.name,
+                  description: savedJar.description !== null && savedJar.description !== undefined ? savedJar.description : initJar.description,
                   balance: Number(savedJar.balance), 
                   targetAmount: Number(savedJar.target_amount) || 0, 
                   goalStartDate: savedJar.goal_start_date || null,
-                  percentage: Number(savedJar.percentage) || initJar.percentage,
+                  percentage: savedJar.percentage !== null && savedJar.percentage !== undefined ? Number(savedJar.percentage) : initJar.percentage,
                   lastConfigChange: savedJar.last_config_change || null
                 } : initJar;
               }));
@@ -88,12 +88,12 @@ export const FinanceProvider = ({ children }) => {
                   const savedJar = parsedJars.find(sj => (sj.id || sj.jar_id) === initJar.id);
                   return savedJar ? { 
                     ...initJar, 
-                    name: savedJar.name || initJar.name,
-                    description: savedJar.description || initJar.description,
+                    name: savedJar.name !== null && savedJar.name !== undefined ? savedJar.name : initJar.name,
+                    description: savedJar.description !== null && savedJar.description !== undefined ? savedJar.description : initJar.description,
                     balance: savedJar.balance, 
                     targetAmount: savedJar.targetAmount || savedJar.target_amount || 0, 
                     goalStartDate: savedJar.goalStartDate || savedJar.goal_start_date || null,
-                    percentage: savedJar.percentage || initJar.percentage,
+                    percentage: savedJar.percentage !== null && savedJar.percentage !== undefined ? savedJar.percentage : initJar.percentage,
                     lastConfigChange: savedJar.lastConfigChange || savedJar.last_config_change
                   } : initJar;
                 }));
@@ -125,12 +125,12 @@ export const FinanceProvider = ({ children }) => {
           const savedJar = parsedJars.find(sj => sj.id === initJar.id);
           return savedJar ? { 
             ...initJar, 
-            name: savedJar.name || initJar.name,
-            description: savedJar.description || initJar.description,
+            name: savedJar.name !== null && savedJar.name !== undefined ? savedJar.name : initJar.name,
+            description: savedJar.description !== null && savedJar.description !== undefined ? savedJar.description : initJar.description,
             balance: savedJar.balance, 
             targetAmount: savedJar.targetAmount || 0, 
             goalStartDate: savedJar.goalStartDate || null,
-            percentage: savedJar.percentage || initJar.percentage,
+            percentage: savedJar.percentage !== null && savedJar.percentage !== undefined ? savedJar.percentage : initJar.percentage,
             lastConfigChange: savedJar.lastConfigChange || savedJar.last_config_change
           } : initJar;
         }));
